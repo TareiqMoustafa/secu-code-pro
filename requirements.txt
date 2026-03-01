@@ -1,7 +1,4 @@
 flask
 requests
-firebase-admin
 python-dotenv
-xhtml2pdf
-gunicorn
-cloudinary
+firebase-admin
