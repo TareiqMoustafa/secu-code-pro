@@ -190,7 +190,6 @@
             lucide.createIcons();
         };
 
-        // تشغيل التهيئة الأولية للغة
         window.toggleLang(); 
 
         window.runAnalysis = async function() {
@@ -228,13 +227,15 @@
             const area = document.getElementById('resultsArea');
             area.classList.remove('hidden');
             const d = i18n[currentLang];
-            let isCrit = data.points > 60;
+            // إصلاح: التأكد من وجود قيمة للـ points
+            let score = data && data.points ? data.points : 0;
+            let isCrit = score > 60;
             let theme = isCrit ? 'var(--accent-red)' : 'var(--accent-green)';
 
             area.innerHTML = `
                 <div class="glass p-8 border-t-4" style="border-color: ${theme}">
                     <h2 class="text-2xl font-black uppercase mb-2" style="color: ${theme}">${isCrit ? d.resCrit : d.resSafe}</h2>
-                    <p class="text-slate-400 font-mono text-sm mb-6">${url}</p>
+                    <p class="text-slate-400 font-mono text-sm mb-6 text-left" dir="ltr">${url}</p>
                     <div class="bg-black/40 p-5 rounded-xl border border-white/5">
                         <p class="text-[10px] uppercase font-black text-slate-500 mb-1">${d.diagnostic}</p>
                         <p class="text-lg italic">${isCrit ? d.SUSPICIOUS : d.CLEAN_AUDIT}</p>
@@ -255,7 +256,11 @@
 
         window.closeScanner = () => {
             if(html5QrCode) {
-                html5QrCode.stop().finally(() => document.getElementById('scannerModal').classList.remove('active'));
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scannerModal').classList.remove('active');
+                }).catch(() => {
+                    document.getElementById('scannerModal').classList.remove('active');
+                });
             } else {
                 document.getElementById('scannerModal').classList.remove('active');
             }
@@ -273,4 +278,3 @@
     </script>
 </body>
 </html>
-
