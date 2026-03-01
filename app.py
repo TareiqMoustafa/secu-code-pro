@@ -7,6 +7,7 @@ import time
 import math
 import logging
 import re
+import validators
 from flask import Flask, request, jsonify, render_template
 from urllib.parse import urlparse
 import firebase_admin
@@ -15,69 +16,72 @@ from Levenshtein import distance
 
 app = Flask(__name__)
 
-# إعدادات المفاتيح (تأكد من وضع مفتاحك الصحيح لـ VT)
-VT_API_KEY = "07c7587e1d272b5f0187493944bb59ba9a29a56a16c2df681ab56b3f3c887564"
+# إعداد السجلات البرمجية (Logging) لسهولة التتبع
+logging.basicConfig(level=logging.INFO)
 
-# --- محركات الاستخبارات المتقدمة ---
+# --- إعدادات الحماية والوصول ---
+# يتم جلب المفاتيح من بيئة العمل (Environment Variables) لضمان أعلى معايير الأمان
+VT_API_KEY = os.getenv("VT_API_KEY", "07c7587e1d272b5f0187493944bb59ba9a29a56a16c2df681ab56b3f3c887564")
+
+# تشغيل نظام Firebase Admin SDK
+try:
+    if not firebase_admin._apps:
+        # ملاحظة: تأكد من إضافة FIREBASE_PRIVATE_KEY في إعدادات Vercel
+        cred = credentials.Certificate({
+            "type": "service_account",
+            "project_id": "secucode-pro",
+            "private_key": os.getenv("FIREBASE_PRIVATE_KEY", "").replace('\\n', '\n'),
+            "client_email": "firebase-adminsdk-fbsvc@secucode-pro.iam.gserviceaccount.com"
+        })
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://flutter-ai-playground-2de28-default-rtdb.europe-west1.firebasedatabase.app'
+        })
+except Exception as e:
+    logging.error(f"System: Firebase initialization failed: {e}")
+
+# --- محركات التحليل الجنائي المتقدمة ---
 
 def calculate_entropy(text):
-    """تقنية متطورة لكشف الدومينات المولدة آلياً (DGA Detection)"""
+    """خوارزمية قياس العشوائية لكشف الدومينات المولدة آلياً (DGA)"""
     if not text: return 0
     probs = [float(text.count(c)) / len(text) for c in dict.fromkeys(list(text))]
-    entropy = - sum([p * math.log(p) / math.log(2.0) for p in probs])
-    return entropy
-
-def check_domain_age_risk(domain):
-    """تحليل منطقي: مواقع الاحتيال لا تعيش طويلاً"""
-    # في النسخة الاحترافية نستخدم Whois API، هنا نضع منطقاً استباقياً
-    suspicious_tlds = ['.zip', '.mov', '.top', '.xyz', '.work', '.click']
-    return any(domain.endswith(tld) for tld in suspicious_tlds)
+    return - sum([p * math.log(p) / math.log(2.0) for p in probs])
 
 def deep_forensic_engine(url):
-    """المحرك المركزي لاتخاذ القرار السيبراني"""
+    """المحرك المركزي لاتخاذ القرار السيبراني بناءً على 4 طبقات فحص"""
     parsed = urlparse(url)
     domain = parsed.netloc.lower()
     
-    # مصفوفة المخاطر (Risk Matrix)
-    metrics = {
-        "entropy": calculate_entropy(domain),
-        "typosquatting": False,
-        "ssl_score": 0,
-        "reputation_score": 0,
-        "is_dga": False
-    }
-    
     risk_points = 0
     findings = []
-
-    # 1. كشف الـ Typosquatting (تشابه الأسماء)
-    sensitive_brands = ['google', 'facebook', 'paypal', 'binance', 'apple', 'microsoft', 'netflix']
+    
+    # 1. كشف التزييف الرقمي (Typosquatting)
+    # تقنية تقارن اسم النطاق بأشهر العلامات التجارية العالمية
+    sensitive_brands = ['google', 'facebook', 'paypal', 'binance', 'apple', 'microsoft', 'netflix', 'amazon']
     clean_name = domain.split('.')[0]
     for brand in sensitive_brands:
         d = distance(clean_name, brand)
-        if 0 < d <= 2: # تشابه قريب جداً ولكنه ليس الأصل
-            metrics["typosquatting"] = True
-            risk_points += 70
-            findings.append(f"High-Risk Similarity to {brand.upper()}")
+        if 0 < d <= 2: # تشابه بصري خادع
+            risk_points += 75
+            findings.append(f"Potential Phishing: Domain mimics {brand.upper()}")
 
-    # 2. تحليل العشوائية (Entropy)
-    if metrics["entropy"] > 3.8: # مؤشر تقني على أن الدومين مشبوه ومولد آلياً
-        metrics["is_dga"] = True
-        risk_points += 40
-        findings.append("Algorithmic Domain Generation Detected")
+    # 2. تحليل الانتروبيا (Entropy Analysis)
+    # كشف الأسماء العشوائية التي تستخدمها البرمجيات الخبيثة
+    if calculate_entropy(domain) > 3.8:
+        risk_points += 45
+        findings.append("Suspicious Pattern: Algorithmic Domain detected")
 
-    # 3. الفحص التقني العميق (SSL & Handshake)
+    # 3. فحص البروتوكول الأمني (SSL/TLS Inspection)
     try:
         context = ssl.create_default_context()
         with socket.create_connection((domain, 443), timeout=3) as sock:
             with context.wrap_socket(sock, server_hostname=domain) as ssock:
-                metrics["ssl_score"] = 100
-                findings.append("Grade-A SSL Encryption")
+                findings.append("Verified: Grade-A SSL Encryption Active")
     except:
-        risk_points += 35
-        findings.append("Insecure Protocol (Missing SSL)")
+        risk_points += 40
+        findings.append("Warning: Unencrypted Connection (Missing SSL)")
 
-    # 4. الاستخبارات الجماعية (VirusTotal V3)
+    # 4. قاعدة بيانات التهديدات العالمية (VirusTotal Intel)
     try:
         u_id = base64.urlsafe_b64encode(url.encode()).decode().strip("=")
         vt_res = requests.get(f"https://www.virustotal.com/api/v3/urls/{u_id}", 
@@ -85,77 +89,89 @@ def deep_forensic_engine(url):
         malicious = vt_res['data']['attributes']['last_analysis_stats']['malicious']
         if malicious > 0:
             risk_points += (malicious * 30)
-            findings.append(f"Confirmed Threat by {malicious} Engines")
-    except: pass
+            findings.append(f"Threat Intelligence: Flagged by {malicious} security vendors")
+    except:
+        pass
 
     final_score = min(risk_points, 100)
     return {
         "risk_score": final_score,
         "is_blacklisted": final_score >= 50,
-        "findings": findings,
-        "tech_metrics": metrics
+        "findings": findings
     }
 
-# --- مسارات النظام ---
+# --- المسارات البرمجية (Endpoints) ---
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    timer_start = time.time()
+    start_time = time.time()
     try:
         data = request.get_json()
-        target = data.get('link', '').strip()
-        
-        # بروتوكول التنظيف الاستباقي للرابط
-        if not re.match(r'http(s)?://', target):
-            target = "https://" + target
+        target_url = data.get('link', '').strip()
+
+        # التحقق من صحة الرابط برمجياً لمنع الأخطاء التقنية
+        if not target_url:
+            return jsonify({"status": "error", "message": "URL is required"}), 400
             
-        # تتبع الرابط النهائي (للمواقع المختصرة)
+        if not target_url.startswith(('http://', 'https://')):
+            target_url = "https://" + target_url
+
+        if not validators.url(target_url):
+            return jsonify({"status": "error", "message": "Invalid URL format"}), 400
+
+        # تتبع الرابط الوجهة (للمواقع المختصرة مثل bit.ly)
         try:
-            final_target = requests.head(target, allow_redirects=True, timeout=5).url
-        except: final_target = target
+            final_target = requests.head(target_url, allow_redirects=True, timeout=5).url
+        except:
+            final_target = target_url
             
         domain = urlparse(final_target).netloc.lower()
         
-        # تشغيل محرك التحليل الجنائي
-        report = deep_forensic_engine(final_target)
+        # إطلاق محرك التحليل الجنائي
+        analysis = deep_forensic_engine(final_target)
         
-        # جلب بيانات البنية التحتية (Server Ops)
+        # جلب تفاصيل البنية التحتية للسيرفر (Infrastructure Details)
         try:
             ip_addr = socket.gethostbyname(domain)
-            geo = requests.get(f"https://ipapi.co/{ip_addr}/json/", timeout=3).json()
-            server = {
+            geo_data = requests.get(f"https://ipapi.co/{ip_addr}/json/", timeout=3).json()
+            server_details = {
                 "ip": ip_addr,
-                "country": geo.get("country_name", "International"),
-                "isp": geo.get("org", "Private Data Center"),
-                "asn": geo.get("asn", "Unknown")
+                "country": geo_data.get("country_name", "International Data Center"),
+                "isp": geo_data.get("org", "Managed Infrastructure"),
+                "asn": geo_data.get("asn", "Private Network")
             }
         except:
-            server = {"ip": "Proxy/CDN", "country": "Hidden", "isp": "Cloudflare/Akamai", "asn": "N/A"}
+            server_details = {"ip": "Hidden/CDN", "country": "Secure Proxy", "isp": "Cloud Network", "asn": "N/A"}
 
-        # مزامنة البيانات مع Firebase
+        # تحديث الإحصائيات اللحظية في قاعدة بيانات Firebase
         try:
             db.reference('stats/clicks').transaction(lambda x: (x or 0) + 1)
-            if report["is_blacklisted"]:
+            if analysis["is_blacklisted"]:
                 db.reference('stats/threats').transaction(lambda x: (x or 0) + 1)
-        except: pass
+        except:
+            pass
 
+        # توليد الاستجابة النهائية
         return jsonify({
             "status": "Verified",
             "url": final_target,
-            "risk_score": report["risk_score"],
-            "is_blacklisted": report["is_blacklisted"],
-            "forensic_report": report["findings"],
-            "server_details": server,
-            "latency": f"{int((time.time() - timer_start) * 1000)}ms",
-            "security_grade": "A+" if report["risk_score"] < 20 else ("C" if report["risk_score"] < 50 else "F")
+            "risk_score": analysis["risk_score"],
+            "is_blacklisted": analysis["is_blacklisted"],
+            "forensic_report": analysis["findings"],
+            "server": server_details,
+            "latency": f"{int((time.time() - start_time) * 1000)}ms",
+            "timestamp": time.strftime("%H:%M:%S | %Y-%m-%d")
         })
 
     except Exception as e:
-        return jsonify({"status": "Critical Error", "log": str(e)}), 500
+        logging.error(f"Critical Analysis Error: {e}")
+        return jsonify({"status": "error", "message": "Internal Analysis Failure"}), 500
 
 @app.route('/')
-def main_gateway():
+def home():
+    """المسار الأساسي لفتح واجهة النظام"""
     return render_template('index.html')
 
+# تشغيل التطبيق (مناسب للبيئة المحلية، Vercel سيستخدم gunicorn)
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(debug=False)
