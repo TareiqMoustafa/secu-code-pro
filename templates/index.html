@@ -3,138 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SecuCode Pro | نظام التقصي الرقمي الذكي</title>
+    <title>SecuCode Pro | نظام فحص الروابط</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <style>
-        :root { --primary: #3b82f6; --danger: #ef4444; --success: #10b981; --bg: #050a15; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: white; overflow-x: hidden; scroll-behavior: smooth; }
-        
-        /* تأثير الشبكة التقنية في الخلفية */
-        .tech-bg { position: fixed; inset: 0; z-index: -1; 
-            background-image: radial-gradient(circle at 2px 2px, rgba(59, 130, 246, 0.07) 1px, transparent 0);
-            background-size: 40px 40px; }
-
-        .glass-card { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(15px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 1.5rem; transition: 0.3s ease; }
-        .glass-card:hover { border-color: rgba(59, 130, 246, 0.3); }
-        
-        /* القائمة الجانبية العائمة */
-        .side-guide { position: fixed; right: -280px; top: 50%; transform: translateY(-50%); 
-            width: 300px; z-index: 100; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .side-guide.open { right: 20px; }
-        .guide-trigger { position: absolute; left: -50px; top: 0; background: var(--primary); 
-            padding: 15px; border-radius: 12px 0 0 12px; cursor: pointer; box-shadow: -5px 0 20px rgba(59,130,246,0.4); }
-
-        .text-glow { text-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
-        .result-img { width: 100%; border-radius: 1.25rem; border: 2px solid rgba(255,255,255,0.05); 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6); object-fit: cover; aspect-ratio: 16/9; }
-            
-        @keyframes scan-line { 0% { top: 0; } 100% { top: 100%; } }
-        .scanning-effect::after { content: ""; position: absolute; left: 0; width: 100%; h-1px; 
-            background: var(--primary); box-shadow: 0 0 15px var(--primary); animation: scan-line 2s linear infinite; }
+        :root { --accent-blue: #3b82f6; --accent-red: #ef4444; --accent-green: #10b981; }
+        body { font-family: 'Cairo', 'Inter', sans-serif; background: #020617; color: white; min-height: 100vh; margin: 0; transition: 0.3s; }
+        .cyber-grid { background-image: radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px); background-size: 25px 25px; }
+        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 1.5rem; }
+        .result-img { width: 100%; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; aspect-ratio: 16/9; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="tech-bg"></div>
-
-    <div id="sideGuide" class="side-guide">
-        <div class="guide-trigger" onclick="document.getElementById('sideGuide').classList.toggle('open')">
-            <i data-lucide="help-circle" class="text-white"></i>
-        </div>
-        <div class="glass-card p-6 shadow-2xl border-blue-500/40">
-            <div class="flex items-center gap-2 mb-6">
-                <div class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
-                <h3 class="text-blue-400 font-black text-sm uppercase">بروتوكول النظام</h3>
-            </div>
-            <ul class="space-y-5 text-[11px] text-slate-300 leading-relaxed font-bold">
-                <li class="flex gap-3"> <i data-lucide="search" class="w-4 h-4 text-blue-500 shrink-0"></i> فحص النطاق وتتبع سجلات الاستضافة العالمية.</li>
-                <li class="flex gap-3"> <i data-lucide="database" class="w-4 h-4 text-blue-500 shrink-0"></i> مطابقة الرابط مع 60+ قاعدة بيانات أمنية دولية.</li>
-                <li class="flex gap-3"> <i data-lucide="eye" class="w-4 h-4 text-blue-500 shrink-0"></i> التقاط معاينة بصرية عبر بيئة Sandbox معزولة.</li>
-                <li class="flex gap-3"> <i data-lucide="shield-check" class="w-4 h-4 text-blue-500 shrink-0"></i> تقييم النتيجة النهائية بناءً على خوارزمية RiskScore.</li>
-            </ul>
-        </div>
-    </div>
-
-    <main class="max-w-5xl mx-auto space-y-10">
-        <header class="flex flex-col items-center text-center space-y-4">
-            <div class="relative group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-                <div class="relative p-3 bg-slate-900 rounded-3xl border border-white/10">
-                    <img src="https://raw.githubusercontent.com/bablomarouan376-boop/secu-code-pro/main/static/og-image.jpg" class="w-16 h-16 rounded-2xl object-cover">
+<body class="cyber-grid p-3 md:p-8">
+    <main class="max-w-6xl mx-auto space-y-6 md:space-y-8">
+        
+        <header class="flex flex-col sm:flex-row justify-between items-center gap-4 glass p-4 md:p-6 shadow-2xl">
+            <div class="flex items-center gap-4 text-center sm:text-right">
+                <div class="p-2 bg-blue-600/10 rounded-2xl border border-blue-500/20 shrink-0">
+                    <img src="https://raw.githubusercontent.com/bablomarouan376-boop/secu-code-pro/main/static/og-image.jpg" alt="Logo" class="w-10 h-10 md:w-12 md:h-12 object-cover rounded-lg">
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-3xl font-black italic uppercase tracking-tighter">SecuCode <span class="text-blue-600">Pro</span></h1>
+                    <p id="txt-hero-sub" class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest"></p>
                 </div>
             </div>
-            <div class="space-y-1">
-                <h1 class="text-4xl md:text-5xl font-black tracking-tighter uppercase italic">SecuCode <span class="text-blue-500 text-glow">Pro</span></h1>
-                <p id="hero-sub" class="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em]"></p>
-            </div>
+            <button onclick="toggleLang()" id="langBtn" class="px-6 py-2 glass hover:bg-white/5 text-[10px] font-black uppercase transition-all tracking-widest border-white/10 text-blue-400">English</button>
         </header>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="glass-card p-4 border-l-4 border-blue-500 flex justify-between items-center">
-                <div><p class="text-[9px] text-slate-500 font-bold uppercase">إجمالي الفحوصات</p><span id="totalClicks" class="text-xl font-black font-mono">0000</span></div>
-                <i data-lucide="activity" class="text-blue-500/30 w-8 h-8"></i>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 text-center">
+            <div class="glass p-4 md:p-5 border-l-4 border-l-blue-500">
+                <p id="txt-total-lbl" class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest"></p>
+                <span id="totalScanned" class="text-lg md:text-2xl font-black font-mono">0000</span>
             </div>
-            <div class="glass-card p-4 border-l-4 border-red-500 flex justify-between items-center">
-                <div><p class="text-[9px] text-slate-500 font-bold uppercase">تهديدات مكتشفة</p><span id="totalThreats" class="text-xl font-black font-mono text-red-500">0000</span></div>
-                <i data-lucide="alert-triangle" class="text-red-500/30 w-8 h-8"></i>
+            <div class="glass p-4 md:p-5 border-l-4 border-l-red-600">
+                <p id="txt-threats-lbl" class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest"></p>
+                <span id="threatsDetected" class="text-lg md:text-2xl font-black font-mono text-red-500">0000</span>
             </div>
-            <div class="glass-card p-4 border-l-4 border-emerald-500 flex justify-between items-center">
-                <div><p class="text-[9px] text-slate-500 font-bold uppercase">دقة المحرك</p><span class="text-xl font-black font-mono text-emerald-500">99.8%</span></div>
-                <i data-lucide="target" class="text-emerald-500/30 w-8 h-8"></i>
+            <div class="glass p-4 md:p-5">
+                <p id="txt-accuracy-lbl" class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest"></p>
+                <span class="text-lg md:text-2xl font-black font-mono text-emerald-500">99.8%</span>
             </div>
-            <div class="glass-card p-4 border-l-4 border-purple-500 flex justify-between items-center">
-                <div><p class="text-[9px] text-slate-500 font-bold uppercase">حالة النظام</p><span class="text-xl font-black font-mono text-purple-500">ACTIVE</span></div>
-                <i data-lucide="cpu" class="text-purple-500/30 w-8 h-8"></i>
+            <div class="glass p-4 md:p-5 flex items-center justify-center">
+                <span id="txt-status-badge" class="px-3 py-1 bg-blue-600/10 text-blue-400 text-[8px] md:text-[10px] font-black rounded-full uppercase border border-blue-500/20 italic"></span>
             </div>
         </div>
 
-        <section class="glass-card p-3 md:p-4 shadow-2xl relative overflow-hidden">
-            <div class="flex flex-col md:flex-row gap-3">
-                <div class="relative flex-grow">
-                    <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none">
-                        <i data-lucide="link" class="w-5 h-5 text-slate-500"></i>
-                    </div>
-                    <input type="text" id="urlInput" 
-                        class="w-full bg-black/40 border border-white/5 p-5 pr-14 pl-14 rounded-2xl outline-none font-mono text-sm focus:border-blue-500 transition-all placeholder:text-slate-600" 
-                        placeholder="https://example.com">
-                    <button onclick="openScanner()" class="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-white/5 hover:bg-blue-500/10 rounded-xl transition-all">
-                        <i data-lucide="scan" class="w-5 h-5 text-blue-500"></i>
-                    </button>
+        <section class="glass p-5 md:p-8 space-y-4 border-b-4 border-blue-500/30">
+            <h3 id="txt-usage-title" class="text-xs md:text-sm font-black text-blue-500 uppercase tracking-widest flex items-center gap-2"></h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <p id="txt-step-1" class="text-[10px] md:text-[11px] font-bold text-slate-300 leading-relaxed uppercase"></p>
                 </div>
-                <button onclick="runAnalysis()" id="scanBtn" 
-                    class="bg-blue-600 hover:bg-blue-700 px-12 py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-4 shadow-lg shadow-blue-600/20">
-                    <i data-lucide="shield-check" class="w-5 h-5"></i> <span id="btn-text">بدء التقصي الرقمي</span>
-                </button>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <p id="txt-step-2" class="text-[10px] md:text-[11px] font-bold text-slate-300 leading-relaxed uppercase"></p>
+                </div>
+                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
+                    <p id="txt-step-3" class="text-[10px] md:text-[11px] font-bold text-slate-300 leading-relaxed uppercase"></p>
+                </div>
             </div>
         </section>
 
-        <div id="loader" class="hidden py-24 text-center space-y-6 glass-card">
-            <div class="relative w-16 h-16 mx-auto">
-                <div class="absolute inset-0 border-4 border-blue-500/20 rounded-full"></div>
-                <div class="absolute inset-0 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <section class="glass p-6 md:p-14 relative overflow-hidden shadow-2xl">
+            <div class="relative z-10 space-y-6 md:space-y-8 text-center sm:text-right">
+                <div class="space-y-2">
+                    <h2 id="txt-input-label" class="text-[10px] md:text-xs font-black text-blue-500 uppercase tracking-[0.3em]"></h2>
+                    <p id="txt-input-sub" class="text-[9px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed"></p>
+                </div>
+                <div class="flex flex-col gap-4 md:gap-6">
+                    <input type="text" id="urlInput" dir="ltr" class="w-full bg-black/60 border-2 border-white/5 p-5 md:p-7 rounded-2xl md:rounded-3xl focus:border-blue-600 transition-all font-mono text-sm md:text-base outline-none text-center sm:text-left" placeholder="https://example.com">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5">
+                        <button onclick="runAnalysis()" id="scanBtn" class="bg-blue-600 hover:bg-blue-700 py-4 md:py-6 rounded-2xl md:rounded-3xl font-black text-[10px] md:text-xs uppercase flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg shadow-blue-600/20">
+                            <i data-lucide="search" class="w-4 h-4 md:w-5 md:h-5"></i> <span id="txt-scan-btn"></span>
+                        </button>
+                        <button onclick="document.getElementById('urlInput').value = ''" id="txt-clear-btn" class="bg-white/5 border border-white/10 py-4 md:py-6 rounded-2xl md:rounded-3xl font-black text-[9px] md:text-[10px] uppercase text-slate-500"></button>
+                    </div>
+                </div>
             </div>
-            <p class="text-blue-400 text-[10px] font-black uppercase tracking-[0.5em] animate-pulse">جاري تحليل النطاق والتحقق من المعايير الأمنية...</p>
+        </section>
+
+        <div id="loader" class="hidden glass p-10 md:p-16 text-center">
+            <div class="animate-spin h-10 w-10 md:h-12 md:w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-6"></div>
+            <p id="txt-loader" class="text-blue-500 font-black text-[9px] md:text-[11px] uppercase tracking-[0.2em] animate-pulse"></p>
         </div>
 
-        <div id="resultsArea" class="hidden space-y-8 animate-in fade-in slide-in-from-bottom-5 duration-700"></div>
+        <div id="resultsArea" class="hidden space-y-6 fade-in"></div>
 
-        <footer class="text-center pt-10 border-t border-white/5">
-            <p class="text-[9px] text-slate-600 font-black uppercase tracking-[0.5em]">تطوير وبرمجة طارق مصطفى • إصدار المسابقة الرسمي 2026</p>
+        <footer class="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[8px] md:text-[10px] text-slate-600 font-black uppercase tracking-widest text-center">
+            <p id="txt-footer-copy"></p>
+            <p id="txt-footer-rights"></p>
         </footer>
     </main>
-
-    <div id="scannerModal" class="fixed inset-0 bg-black/95 z-[200] hidden items-center justify-center p-6 backdrop-blur-md">
-        <div class="glass-card p-6 w-full max-w-sm text-center border-blue-500/30">
-            <h3 class="text-sm font-black text-blue-500 mb-4 uppercase">استشعار الروابط الذكي</h3>
-            <div id="reader" class="rounded-2xl overflow-hidden mb-6 border border-white/10"></div>
-            <button onclick="closeScanner()" class="w-full p-4 bg-red-500/10 text-red-500 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500/20">إيقاف المستشعر</button>
-        </div>
-    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -144,133 +107,129 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // تحديث الإحصائيات لحظياً
-        onValue(ref(db, 'stats'), (snapshot) => {
-            const data = snapshot.val() || { clicks: 0, threats: 0 };
-            document.getElementById('totalClicks').innerText = data.clicks.toString().padStart(4, '0');
-            document.getElementById('totalThreats').innerText = data.threats.toString().padStart(4, '0');
-        });
-
         const i18n = {
             ar: {
-                hero: "نظام التقصي الرقمي الذكي • إشراف: طارق مصطفى",
-                safe: "نطاق آمن وموثوق",
-                danger: "تنبيه: نشاط مشبوه",
-                descSafe: "الرابط يخضع لمعايير الأمان العالمية. لم يتم رصد أي أنشطة عدوانية أو محاولات تصيد في قواعد البيانات.",
-                descDanger: "تم رصد مؤشرات خطورة مرتفعة. الرابط قد يحتوي على محتوى ضار أو انتحال لصفة جهة رسمية.",
-                ipLabel: "عنوان الخادم:",
-                locLabel: "موقع الاستضافة:",
-                previewLabel: "المعاينة البصرية الآمنة:"
+                heroSub: "نظام تحليل الروابط الضارة • المطور: طارق مصطفى",
+                total: "إجمالي الروابط المفحوصة", threats: "المواقع الضارة المكتشفة", accuracy: "نسبة دقة الفحص", status: "إصدار 2.6",
+                usageTitle: "آلية عمل النظام:", step1: "1. تحليل سجلات النطاق (DNS) للتحقق من هوية الموقع.", step2: "2. مطابقة الرابط مع قواعد بيانات المواقع المشبوهة.", step3: "3. توليد معاينة بصرية للموقع في بيئة معزولة آمنة.",
+                inputLabel: "فحص أمان الروابط:", inputSub: "أدخل الرابط (URL) للتحقق من سلامته الفنية",
+                scanBtn: "تحليل الرابط الآن", clearBtn: "مسح الحقل", loader: "جاري فحص البيانات وتحليل النطاق...",
+                footerCopy: "© 2026 SecuCode Pro • طارق مصطفى", footerRights: "جميع حقوق الفحص محفوظة للنظام السحابي",
+                resSafe: "رابط آمن", resDanger: "موقع غير آمن", ipLabel: "عنوان الـ IP:", countryLabel: "دولة المستضيف:", diagLabel: "تقرير الفحص الفني:",
+                diagSafe: "لم يتم العثور على أي تهديدات برمجية في سجلات هذا الموقع.", diagDanger: "تم رصد نشاط مشبوه، يرجى الحذر من زيارة هذا الرابط.", preview: "معاينة الموقع:"
+            },
+            en: {
+                heroSub: "URL Analysis System • Dev: Tarek Mostafa",
+                total: "TOTAL LINKS SCANNED", threats: "THREATS DETECTED", accuracy: "ACCURACY RATE", status: "V2.6 PRO",
+                usageTitle: "SYSTEM ARCHITECTURE:", step1: "1. DNS record analysis to verify domain identity.", step2: "2. Database cross-referencing for malicious patterns.", step3: "3. Secure sandbox visual preview generation.",
+                inputLabel: "SECURITY AUDIT:", inputSub: "ENTER URL TO START TECHNICAL VERIFICATION",
+                scanBtn: "ANALYZE NOW", clearBtn: "CLEAR FIELD", loader: "ANALYZING DATA AND DOMAIN RECORDS...",
+                footerCopy: "© 2026 SecuCode Pro • Tarek Mostafa", footerRights: "ALL AUDITS RESERVED TO CLOUD SYSTEM",
+                resSafe: "SECURE LINK", resDanger: "UNSAFE DOMAIN", ipLabel: "SERVER IP:", countryLabel: "HOST COUNTRY:", diagLabel: "TECHNICAL REPORT:",
+                diagSafe: "No security threats found in this domain's records.", diagDanger: "Suspicious activity detected. Exercise extreme caution.", preview: "SITE PREVIEW:"
             }
         };
+
+        let currentLang = 'ar';
+        window.toggleLang = () => {
+            currentLang = currentLang === 'ar' ? 'en' : 'ar';
+            const d = i18n[currentLang];
+            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+            document.getElementById('langBtn').innerText = currentLang === 'ar' ? 'English' : 'العربية';
+            document.getElementById('txt-hero-sub').innerText = d.heroSub;
+            document.getElementById('txt-total-lbl').innerText = d.total;
+            document.getElementById('txt-threats-lbl').innerText = d.threats;
+            document.getElementById('txt-accuracy-lbl').innerText = d.accuracy;
+            document.getElementById('txt-status-badge').innerText = d.status;
+            document.getElementById('txt-usage-title').innerHTML = `<i data-lucide="info" class="w-4 h-4"></i> ${d.usageTitle}`;
+            document.getElementById('txt-step-1').innerText = d.step1;
+            document.getElementById('txt-step-2').innerText = d.step2;
+            document.getElementById('txt-step-3').innerText = d.step3;
+            document.getElementById('txt-input-label').innerText = d.inputLabel;
+            document.getElementById('txt-input-sub').innerText = d.inputSub;
+            document.getElementById('txt-scan-btn').innerText = d.scanBtn;
+            document.getElementById('txt-clear-btn').innerText = d.clearBtn;
+            document.getElementById('txt-loader').innerText = d.loader;
+            document.getElementById('txt-footer-copy').innerText = d.footerCopy;
+            document.getElementById('txt-footer-rights').innerText = d.footerRights;
+            lucide.createIcons();
+        };
+
+        window.toggleLang(); // تشغيل اللغة الافتراضية
 
         window.runAnalysis = async function() {
             const input = document.getElementById('urlInput');
             let url = input.value.trim();
-            if(!url) { input.classList.add('border-red-500'); return; }
-            input.classList.remove('border-red-500');
+            if(!url) return;
 
             document.getElementById('resultsArea').classList.add('hidden');
             document.getElementById('loader').classList.remove('hidden');
-            document.getElementById('scanBtn').disabled = true;
 
             try {
-                const res = await fetch('/analyze', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ link: url })
+                const res = await fetch('/analyze', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ link: url }) 
                 });
                 const data = await res.json();
-                renderUI(data);
-            } catch (e) {
-                console.error(e);
-            } finally {
-                document.getElementById('loader').classList.add('hidden');
-                document.getElementById('scanBtn').disabled = false;
+                renderResults(data);
+            } catch {
+                alert("Error connecting to scan service");
+            } finally { 
+                document.getElementById('loader').classList.add('hidden'); 
             }
-        }
+        };
 
-        function renderUI(data) {
+        function renderResults(data) {
             const area = document.getElementById('resultsArea');
-            const d = i18n.ar;
+            area.classList.remove('hidden');
+            const d = i18n[currentLang];
             const isSafe = !data.is_blacklisted;
-            const color = isSafe ? 'emerald' : 'red';
-            const icon = isSafe ? 'shield-check' : 'shield-alert';
+            const theme = isSafe ? 'var(--accent-green)' : 'var(--accent-red)';
 
             area.innerHTML = `
-                <div class="grid lg:grid-cols-5 gap-6">
-                    <div class="lg:col-span-3 glass-card p-8 border-t-4 border-${color}-500 relative overflow-hidden">
-                        <div class="flex items-center gap-4 mb-8">
-                            <div class="p-4 bg-${color}-500/10 rounded-2xl text-${color}-500">
-                                <i data-lucide="${icon}" class="w-8 h-8"></i>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass p-6 md:p-8 border-t-4" style="border-color: ${theme}">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="p-3 rounded-xl" style="background: ${theme}20; color: ${theme}">
+                                <i data-lucide="${isSafe ? 'check-circle' : 'alert-triangle'}" class="w-6 h-6 md:w-8 md:h-8"></i>
                             </div>
-                            <div>
-                                <h2 class="text-2xl font-black text-${color}-500 uppercase italic">${isSafe ? d.safe : d.danger}</h2>
-                                <p class="text-[10px] text-slate-500 font-mono tracking-widest uppercase">${data.url}</p>
-                            </div>
+                            <h2 class="text-xl md:text-2xl font-black uppercase italic" style="color: ${theme}">${isSafe ? d.resSafe : d.resDanger}</h2>
                         </div>
-
-                        <div class="grid grid-cols-2 gap-4 mb-8">
-                            <div class="bg-black/30 p-4 rounded-2xl border border-white/5">
-                                <p class="text-[9px] text-slate-500 font-bold uppercase mb-1">${d.ipLabel}</p>
-                                <p class="text-sm font-mono text-blue-400">${data.server.ip}</p>
+                        <div class="space-y-4">
+                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex justify-between items-center gap-2">
+                                <span class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase">${d.ipLabel}</span>
+                                <span class="text-xs md:text-sm font-mono font-bold text-blue-400 break-all">${data.server.ip}</span>
                             </div>
-                            <div class="bg-black/30 p-4 rounded-2xl border border-white/5">
-                                <p class="text-[9px] text-slate-500 font-bold uppercase mb-1">${d.locLabel}</p>
-                                <p class="text-sm font-bold">${data.server.country}</p>
+                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex justify-between items-center">
+                                <span class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase">${d.countryLabel}</span>
+                                <span class="text-xs md:text-sm font-bold text-slate-200">${data.server.country}</span>
                             </div>
-                        </div>
-
-                        <div class="p-5 bg-${color}-500/5 rounded-2xl border border-${color}-500/10">
-                            <p class="text-xs leading-relaxed text-slate-300 font-bold italic">${isSafe ? d.descSafe : d.descDanger}</p>
+                            <div class="p-4 bg-white/5 rounded-xl border border-white/5">
+                                <p class="text-[8px] md:text-[9px] uppercase font-black text-slate-500 mb-1">${d.diagLabel}</p>
+                                <p class="text-[10px] md:text-xs italic font-bold leading-relaxed text-slate-300">${isSafe ? d.diagSafe : d.diagDanger}</p>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="lg:col-span-2 space-y-4">
-                        <div class="flex justify-between items-center px-1">
-                            <h4 class="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                                <i data-lucide="monitor" class="w-3 h-3 text-blue-500"></i> ${d.previewLabel}
-                            </h4>
-                            <span class="text-[8px] font-bold text-blue-500 px-2 py-1 bg-blue-500/10 rounded">LIVE SANDBOX</span>
+                    <div class="glass p-5 md:p-6 flex flex-col justify-between">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase tracking-widest flex items-center gap-2">
+                                <i data-lucide="image" class="w-3 h-3 text-blue-500"></i> ${d.preview}
+                            </span>
                         </div>
-                        <div class="relative group scanning-effect overflow-hidden rounded-2xl">
-                            <img src="https://s0.wp.com/mshots/v1/${encodeURIComponent(data.url)}?w=800&h=600" 
-                                 class="result-img transition-transform duration-700 group-hover:scale-105" 
-                                 onerror="this.src='https://via.placeholder.com/800x600/050a15/1e293b?text=PREVIEW_ERROR'">
-                        </div>
-                        <p class="text-[9px] text-center text-slate-600 font-bold">المعاينة تتم عبر بيئة Sandbox سحابية مشفرة</p>
+                        <img src="https://s0.wp.com/mshots/v1/${encodeURIComponent(data.url)}?w=600&h=450" class="result-img">
                     </div>
-                </div>
-            `;
-            
-            area.classList.remove('hidden');
+                </div>`;
             lucide.createIcons();
             area.scrollIntoView({ behavior: 'smooth' });
         }
 
-        document.getElementById('hero-sub').innerText = i18n.ar.hero;
+        onValue(ref(db, 'stats'), (s) => {
+            const v = s.val() || { clicks: 0, threats: 0 };
+            document.getElementById('totalScanned').innerText = v.clicks.toString().padStart(4, '0');
+            document.getElementById('threatsDetected').innerText = v.threats.toString().padStart(4, '0');
+        });
         lucide.createIcons();
-
-        let html5QrCode;
-        window.openScanner = () => {
-            document.getElementById('scannerModal').classList.remove('hidden');
-            document.getElementById('scannerModal').classList.add('flex');
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, (txt) => {
-                document.getElementById('urlInput').value = txt;
-                closeScanner();
-                runAnalysis();
-            }).catch(e => console.error(e));
-        };
-        window.closeScanner = () => {
-            if(html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('scannerModal').classList.add('hidden');
-                });
-            } else {
-                document.getElementById('scannerModal').classList.add('hidden');
-            }
-        };
     </script>
 </body>
 </html>
