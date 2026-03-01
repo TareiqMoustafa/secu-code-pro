@@ -12,14 +12,14 @@
 
     <style>
         :root { --accent-blue: #3b82f6; --accent-red: #ef4444; --accent-green: #10b981; }
-        body { font-family: 'Cairo', 'Inter', sans-serif; background: #020617; color: white; min-height: 100vh; }
+        body { font-family: 'Cairo', 'Inter', sans-serif; background: #020617; color: white; min-height: 100vh; margin: 0; }
         .cyber-grid { background-image: radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px); background-size: 25px 25px; }
         .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 1.5rem; }
         .modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.95); align-items: center; justify-content: center; opacity: 0; transition: 0.3s; }
         .modal.active { display: flex; opacity: 1; }
         .error-shake { animation: shake 0.4s ease-in-out; border-color: var(--accent-red) !important; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        .step-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .step-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; padding: 1rem; border-radius: 0.75rem; }
         .step-card:hover { border-color: var(--accent-blue); background: rgba(59, 130, 246, 0.05); }
     </style>
 </head>
@@ -57,34 +57,32 @@
         </div>
 
         <section class="glass p-6 md:p-8 space-y-6 border-b-4 border-blue-500/30">
-            <h3 id="txt-usage-title" class="text-sm font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
-                <i data-lucide="book-open" class="w-5 h-5"></i> 
-            </h3>
+            <h3 id="txt-usage-title" class="text-sm font-black text-blue-500 uppercase tracking-widest flex items-center gap-2"></h3>
             <div class="grid md:grid-cols-3 gap-4">
-                <div class="step-card p-4 rounded-xl space-y-2">
-                    <span class="text-blue-500 font-black font-mono">01.</span>
+                <div class="step-card space-y-2">
+                    <span class="text-blue-500 font-black font-mono text-lg">01.</span>
                     <p id="txt-step-1" class="text-[11px] font-bold text-slate-300 leading-relaxed"></p>
                 </div>
-                <div class="step-card p-4 rounded-xl space-y-2">
-                    <span class="text-blue-500 font-black font-mono">02.</span>
+                <div class="step-card space-y-2">
+                    <span class="text-blue-500 font-black font-mono text-lg">02.</span>
                     <p id="txt-step-2" class="text-[11px] font-bold text-slate-300 leading-relaxed"></p>
                 </div>
-                <div class="step-card p-4 rounded-xl space-y-2">
-                    <span class="text-blue-500 font-black font-mono">03.</span>
+                <div class="step-card space-y-2">
+                    <span class="text-blue-500 font-black font-mono text-lg">03.</span>
                     <p id="txt-step-3" class="text-[11px] font-bold text-slate-300 leading-relaxed"></p>
                 </div>
             </div>
         </section>
 
         <section class="glass p-8 md:p-14 relative overflow-hidden shadow-2xl">
-            <div class="relative z-10 space-y-8">
-                <div class="space-y-2 text-center md:text-right">
+            <div class="relative z-10 space-y-8 text-center md:text-right">
+                <div class="space-y-2">
                     <h2 id="txt-input-label" class="text-xs font-black text-blue-500 uppercase tracking-[0.5em]"></h2>
                     <p id="txt-input-sub" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest"></p>
                 </div>
                 <div class="flex flex-col gap-6">
                     <div class="relative">
-                        <input type="text" id="urlInput" class="w-full bg-black/60 border-2 border-white/5 p-7 pr-24 rounded-3xl focus:border-blue-600 transition-all font-mono text-left" placeholder="https://example.com">
+                        <input type="text" id="urlInput" class="w-full bg-black/60 border-2 border-white/5 p-7 pr-24 rounded-3xl focus:border-blue-600 transition-all font-mono text-left outline-none" placeholder="https://example.com">
                         <button onclick="openScanner()" class="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-blue-600/10 border border-blue-500/30 rounded-2xl">
                             <i data-lucide="scan-line" class="w-7 h-7 text-blue-400"></i>
                         </button>
@@ -192,7 +190,8 @@
             lucide.createIcons();
         };
 
-        window.toggleLang();
+        // تشغيل التهيئة الأولية للغة
+        window.toggleLang(); 
 
         window.runAnalysis = async function() {
             const input = document.getElementById('urlInput');
@@ -210,13 +209,19 @@
             document.getElementById('loader').classList.remove('hidden');
 
             try {
-                const res = await fetch('/analyze', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ link: url }) });
+                const res = await fetch('/analyze', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ link: url }) 
+                });
                 const data = await res.json();
                 runTransaction(ref(db, 'stats/clicks'), c => (c || 0) + 1);
                 renderResults(data, url);
             } catch {
                 renderResults({points: 0}, url);
-            } finally { document.getElementById('loader').classList.add('hidden'); }
+            } finally { 
+                document.getElementById('loader').classList.add('hidden'); 
+            }
         };
 
         function renderResults(data, url) {
@@ -243,13 +248,17 @@
             html5QrCode = new Html5Qrcode("reader");
             await html5QrCode.start({ facingMode: "environment" }, { fps: 20, qrbox: 250 }, (txt) => {
                 document.getElementById('urlInput').value = txt;
-                closeScanner(); runAnalysis();
+                closeScanner(); 
+                runAnalysis();
             }).catch(() => closeScanner());
         };
 
         window.closeScanner = () => {
-            if(html5QrCode) html5QrCode.stop().finally(() => document.getElementById('scannerModal').classList.remove('active'));
-            else document.getElementById('scannerModal').classList.remove('active');
+            if(html5QrCode) {
+                html5QrCode.stop().finally(() => document.getElementById('scannerModal').classList.remove('active'));
+            } else {
+                document.getElementById('scannerModal').classList.remove('active');
+            }
         };
 
         onValue(ref(db, 'stats'), (s) => {
@@ -264,3 +273,4 @@
     </script>
 </body>
 </html>
+
