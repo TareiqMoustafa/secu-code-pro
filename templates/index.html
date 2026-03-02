@@ -1,235 +1,273 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" id="htmlTag">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SecuCode Pro | نظام فحص الروابط</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecuCode Pro | المنصة الذكية للأمن السيبراني</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --accent-blue: #3b82f6; --accent-red: #ef4444; --accent-green: #10b981; }
-        body { font-family: 'Cairo', 'Inter', sans-serif; background: #020617; color: white; min-height: 100vh; margin: 0; transition: 0.3s; }
-        .cyber-grid { background-image: radial-gradient(circle, rgba(59, 130, 246, 0.1) 1px, transparent 1px); background-size: 25px 25px; }
-        .glass { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 1.5rem; }
-        .result-img { width: 100%; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); object-fit: cover; aspect-ratio: 16/9; }
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-</head>
-<body class="cyber-grid p-3 md:p-8">
-    <main class="max-w-6xl mx-auto space-y-6 md:space-y-8">
-        
-        <header class="flex flex-col sm:flex-row justify-between items-center gap-4 glass p-4 md:p-6 shadow-2xl">
-            <div class="flex items-center gap-4 text-center sm:text-right">
-                <div class="p-2 bg-blue-600/10 rounded-2xl border border-blue-500/20 shrink-0">
-                    <img src="https://raw.githubusercontent.com/bablomarouan376-boop/secu-code-pro/main/static/og-image.jpg" alt="Logo" class="w-10 h-10 md:w-12 md:h-12 object-cover rounded-lg">
-                </div>
-                <div>
-                    <h1 class="text-xl md:text-3xl font-black italic uppercase tracking-tighter">SecuCode <span class="text-blue-600">Pro</span></h1>
-                    <p id="txt-hero-sub" class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest"></p>
-                </div>
-            </div>
-            <button onclick="toggleLang()" id="langBtn" class="px-6 py-2 glass hover:bg-white/5 text-[10px] font-black uppercase transition-all tracking-widest border-white/10 text-blue-400">English</button>
-        </header>
-
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 text-center">
-            <div class="glass p-4 md:p-5 border-l-4 border-l-blue-500">
-                <p id="txt-total-lbl" class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest"></p>
-                <span id="totalScanned" class="text-lg md:text-2xl font-black font-mono">0000</span>
-            </div>
-            <div class="glass p-4 md:p-5 border-l-4 border-l-red-600">
-                <p id="txt-threats-lbl" class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest"></p>
-                <span id="threatsDetected" class="text-lg md:text-2xl font-black font-mono text-red-500">0000</span>
-            </div>
-            <div class="glass p-4 md:p-5">
-                <p id="txt-accuracy-lbl" class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase mb-1 tracking-widest"></p>
-                <span class="text-lg md:text-2xl font-black font-mono text-emerald-500">99.8%</span>
-            </div>
-            <div class="glass p-4 md:p-5 flex items-center justify-center">
-                <span id="txt-status-badge" class="px-3 py-1 bg-blue-600/10 text-blue-400 text-[8px] md:text-[10px] font-black rounded-full uppercase border border-blue-500/20 italic"></span>
-            </div>
-        </div>
-
-        <section class="glass p-5 md:p-8 space-y-4 border-b-4 border-blue-500/30">
-            <h3 id="txt-usage-title" class="text-xs md:text-sm font-black text-blue-500 uppercase tracking-widest flex items-center gap-2"></h3>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
-                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                    <p id="txt-step-1" class="text-[10px] md:text-[11px] font-bold text-slate-300 leading-relaxed uppercase"></p>
-                </div>
-                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                    <p id="txt-step-2" class="text-[10px] md:text-[11px] font-bold text-slate-300 leading-relaxed uppercase"></p>
-                </div>
-                <div class="bg-white/5 p-4 rounded-xl border border-white/5">
-                    <p id="txt-step-3" class="text-[10px] md:text-[11px] font-bold text-slate-300 leading-relaxed uppercase"></p>
-                </div>
-            </div>
-        </section>
-
-        <section class="glass p-6 md:p-14 relative overflow-hidden shadow-2xl">
-            <div class="relative z-10 space-y-6 md:space-y-8 text-center sm:text-right">
-                <div class="space-y-2">
-                    <h2 id="txt-input-label" class="text-[10px] md:text-xs font-black text-blue-500 uppercase tracking-[0.3em]"></h2>
-                    <p id="txt-input-sub" class="text-[9px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-relaxed"></p>
-                </div>
-                <div class="flex flex-col gap-4 md:gap-6">
-                    <input type="text" id="urlInput" dir="ltr" class="w-full bg-black/60 border-2 border-white/5 p-5 md:p-7 rounded-2xl md:rounded-3xl focus:border-blue-600 transition-all font-mono text-sm md:text-base outline-none text-center sm:text-left" placeholder="https://example.com">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5">
-                        <button onclick="runAnalysis()" id="scanBtn" class="bg-blue-600 hover:bg-blue-700 py-4 md:py-6 rounded-2xl md:rounded-3xl font-black text-[10px] md:text-xs uppercase flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg shadow-blue-600/20">
-                            <i data-lucide="search" class="w-4 h-4 md:w-5 md:h-5"></i> <span id="txt-scan-btn"></span>
-                        </button>
-                        <button onclick="document.getElementById('urlInput').value = ''" id="txt-clear-btn" class="bg-white/5 border border-white/10 py-4 md:py-6 rounded-2xl md:rounded-3xl font-black text-[9px] md:text-[10px] uppercase text-slate-500"></button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <div id="loader" class="hidden glass p-10 md:p-16 text-center">
-            <div class="animate-spin h-10 w-10 md:h-12 md:w-12 border-4 border-blue-600 border-t-transparent rounded-full mx-auto mb-6"></div>
-            <p id="txt-loader" class="text-blue-500 font-black text-[9px] md:text-[11px] uppercase tracking-[0.2em] animate-pulse"></p>
-        </div>
-
-        <div id="resultsArea" class="hidden space-y-6 fade-in"></div>
-
-        <footer class="pt-8 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[8px] md:text-[10px] text-slate-600 font-black uppercase tracking-widest text-center">
-            <p id="txt-footer-copy"></p>
-            <p id="txt-footer-rights"></p>
-        </footer>
-    </main>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        const firebaseConfig = { databaseURL: "https://flutter-ai-playground-2de28-default-rtdb.europe-west1.firebasedatabase.app" };
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        const i18n = {
-            ar: {
-                heroSub: "نظام تحليل الروابط الضارة • المطور: طارق مصطفى",
-                total: "إجمالي الروابط المفحوصة", threats: "المواقع الضارة المكتشفة", accuracy: "نسبة دقة الفحص", status: "إصدار 2.6",
-                usageTitle: "آلية عمل النظام:", step1: "1. تحليل سجلات النطاق (DNS) للتحقق من هوية الموقع.", step2: "2. مطابقة الرابط مع قواعد بيانات المواقع المشبوهة.", step3: "3. توليد معاينة بصرية للموقع في بيئة معزولة آمنة.",
-                inputLabel: "فحص أمان الروابط:", inputSub: "أدخل الرابط (URL) للتحقق من سلامته الفنية",
-                scanBtn: "تحليل الرابط الآن", clearBtn: "مسح الحقل", loader: "جاري فحص البيانات وتحليل النطاق...",
-                footerCopy: "© 2026 SecuCode Pro • طارق مصطفى", footerRights: "جميع حقوق الفحص محفوظة للنظام السحابي",
-                resSafe: "رابط آمن", resDanger: "موقع غير آمن", ipLabel: "عنوان الـ IP:", countryLabel: "دولة المستضيف:", diagLabel: "تقرير الفحص الفني:",
-                diagSafe: "لم يتم العثور على أي تهديدات برمجية في سجلات هذا الموقع.", diagDanger: "تم رصد نشاط مشبوه، يرجى الحذر من زيارة هذا الرابط.", preview: "معاينة الموقع:"
-            },
-            en: {
-                heroSub: "URL Analysis System • Dev: Tarek Mostafa",
-                total: "TOTAL LINKS SCANNED", threats: "THREATS DETECTED", accuracy: "ACCURACY RATE", status: "V2.6 PRO",
-                usageTitle: "SYSTEM ARCHITECTURE:", step1: "1. DNS record analysis to verify domain identity.", step2: "2. Database cross-referencing for malicious patterns.", step3: "3. Secure sandbox visual preview generation.",
-                inputLabel: "SECURITY AUDIT:", inputSub: "ENTER URL TO START TECHNICAL VERIFICATION",
-                scanBtn: "ANALYZE NOW", clearBtn: "CLEAR FIELD", loader: "ANALYZING DATA AND DOMAIN RECORDS...",
-                footerCopy: "© 2026 SecuCode Pro • Tarek Mostafa", footerRights: "ALL AUDITS RESERVED TO CLOUD SYSTEM",
-                resSafe: "SECURE LINK", resDanger: "UNSAFE DOMAIN", ipLabel: "SERVER IP:", countryLabel: "HOST COUNTRY:", diagLabel: "TECHNICAL REPORT:",
-                diagSafe: "No security threats found in this domain's records.", diagDanger: "Suspicious activity detected. Exercise extreme caution.", preview: "SITE PREVIEW:"
-            }
-        };
-
-        let currentLang = 'ar';
-        window.toggleLang = () => {
-            currentLang = currentLang === 'ar' ? 'en' : 'ar';
-            const d = i18n[currentLang];
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('langBtn').innerText = currentLang === 'ar' ? 'English' : 'العربية';
-            document.getElementById('txt-hero-sub').innerText = d.heroSub;
-            document.getElementById('txt-total-lbl').innerText = d.total;
-            document.getElementById('txt-threats-lbl').innerText = d.threats;
-            document.getElementById('txt-accuracy-lbl').innerText = d.accuracy;
-            document.getElementById('txt-status-badge').innerText = d.status;
-            document.getElementById('txt-usage-title').innerHTML = `<i data-lucide="info" class="w-4 h-4"></i> ${d.usageTitle}`;
-            document.getElementById('txt-step-1').innerText = d.step1;
-            document.getElementById('txt-step-2').innerText = d.step2;
-            document.getElementById('txt-step-3').innerText = d.step3;
-            document.getElementById('txt-input-label').innerText = d.inputLabel;
-            document.getElementById('txt-input-sub').innerText = d.inputSub;
-            document.getElementById('txt-scan-btn').innerText = d.scanBtn;
-            document.getElementById('txt-clear-btn').innerText = d.clearBtn;
-            document.getElementById('txt-loader').innerText = d.loader;
-            document.getElementById('txt-footer-copy').innerText = d.footerCopy;
-            document.getElementById('txt-footer-rights').innerText = d.footerRights;
-            lucide.createIcons();
-        };
-
-        window.toggleLang(); // تشغيل اللغة الافتراضية
-
-        window.runAnalysis = async function() {
-            const input = document.getElementById('urlInput');
-            let url = input.value.trim();
-            if(!url) return;
-
-            document.getElementById('resultsArea').classList.add('hidden');
-            document.getElementById('loader').classList.remove('hidden');
-
-            try {
-                const res = await fetch('/analyze', { 
-                    method: 'POST', 
-                    headers: {'Content-Type': 'application/json'}, 
-                    body: JSON.stringify({ link: url }) 
-                });
-                const data = await res.json();
-                renderResults(data);
-            } catch {
-                alert("Error connecting to scan service");
-            } finally { 
-                document.getElementById('loader').classList.add('hidden'); 
-            }
-        };
-
-        function renderResults(data) {
-            const area = document.getElementById('resultsArea');
-            area.classList.remove('hidden');
-            const d = i18n[currentLang];
-            const isSafe = !data.is_blacklisted;
-            const theme = isSafe ? 'var(--accent-green)' : 'var(--accent-red)';
-
-            area.innerHTML = `
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="glass p-6 md:p-8 border-t-4" style="border-color: ${theme}">
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="p-3 rounded-xl" style="background: ${theme}20; color: ${theme}">
-                                <i data-lucide="${isSafe ? 'check-circle' : 'alert-triangle'}" class="w-6 h-6 md:w-8 md:h-8"></i>
-                            </div>
-                            <h2 class="text-xl md:text-2xl font-black uppercase italic" style="color: ${theme}">${isSafe ? d.resSafe : d.resDanger}</h2>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex justify-between items-center gap-2">
-                                <span class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase">${d.ipLabel}</span>
-                                <span class="text-xs md:text-sm font-mono font-bold text-blue-400 break-all">${data.server.ip}</span>
-                            </div>
-                            <div class="bg-black/40 p-4 rounded-xl border border-white/5 flex justify-between items-center">
-                                <span class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase">${d.countryLabel}</span>
-                                <span class="text-xs md:text-sm font-bold text-slate-200">${data.server.country}</span>
-                            </div>
-                            <div class="p-4 bg-white/5 rounded-xl border border-white/5">
-                                <p class="text-[8px] md:text-[9px] uppercase font-black text-slate-500 mb-1">${d.diagLabel}</p>
-                                <p class="text-[10px] md:text-xs italic font-bold leading-relaxed text-slate-300">${isSafe ? d.diagSafe : d.diagDanger}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="glass p-5 md:p-6 flex flex-col justify-between">
-                        <div class="flex justify-between items-center mb-4">
-                            <span class="text-[8px] md:text-[9px] text-slate-500 font-black uppercase tracking-widest flex items-center gap-2">
-                                <i data-lucide="image" class="w-3 h-3 text-blue-500"></i> ${d.preview}
-                            </span>
-                        </div>
-                        <img src="https://s0.wp.com/mshots/v1/${encodeURIComponent(data.url)}?w=600&h=450" class="result-img">
-                    </div>
-                </div>`;
-            lucide.createIcons();
-            area.scrollIntoView({ behavior: 'smooth' });
+        :root {
+            --primary-blue: #38bdf8;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --danger-red: #ef4444;
+            --success-green: #22c55e;
         }
 
-        onValue(ref(db, 'stats'), (s) => {
-            const v = s.val() || { clicks: 0, threats: 0 };
-            document.getElementById('totalScanned').innerText = v.clicks.toString().padStart(4, '0');
-            document.getElementById('threatsDetected').innerText = v.threats.toString().padStart(4, '0');
-        });
-        lucide.createIcons();
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-dark);
+            color: #f8fafc;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 {
+            color: var(--primary-blue);
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .search-area {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        }
+
+        button {
+            background: var(--primary-blue);
+            color: #0f172a;
+            padding: 0 30px;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #7dd3fc;
+            transform: translateY(-2px);
+        }
+
+        #result-box {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: right;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .danger { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger-red); }
+        .safe { background: rgba(34, 197, 94, 0.15); border: 1px solid var(--success-green); }
+
+        .report-list {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0;
+            font-size: 0.9rem;
+        }
+
+        .report-list li {
+            margin-bottom: 6px;
+            padding-right: 15px;
+            position: relative;
+        }
+
+        .report-list li::before {
+            content: "•";
+            position: absolute;
+            right: 0;
+            color: var(--primary-blue);
+        }
+
+        /* دليل المستخدم */
+        .guide-section {
+            margin-top: 35px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            text-align: right;
+        }
+
+        .guide-section h3 {
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+            margin-top: 0;
+        }
+
+        .guide-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+
+        .step-icon {
+            background: var(--primary-blue);
+            color: #0f172a;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* تذييل الصفحة */
+        footer {
+            margin-top: 40px;
+            color: #475569;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>SecuCode Pro 🛡️</h1>
+        <p class="subtitle">محرك التحليل الجنائي الهجين لكشف التهديدات الرقمية</p>
+
+        <div class="search-area">
+            <input type="text" id="urlInput" placeholder="لصق الرابط المشبوه هنا...">
+            <button onclick="startAnalysis()">فحص الآن</button>
+        </div>
+
+        <div id="result-box">
+            <div id="status-title" style="font-weight: bold; font-size: 1.2rem;"></div>
+            <div id="risk-meter" style="margin: 5px 0; font-size: 0.9rem;"></div>
+            <ul id="findings" class="report-list"></ul>
+        </div>
+
+        <div class="guide-section">
+            <h3>📖 دليل تشغيل النظام (User Guide):</h3>
+            <div class="guide-step">
+                <span class="step-icon">1</span>
+                <p>قم بنسخ الرابط المشكوك فيه من المتصفح أو الرسائل.</p>
+            </div>
+            <div class="guide-step">
+                <span class="step-icon">2</span>
+                <p>الصق الرابط في المربع العلوي واضغط <b>"فحص الآن"</b> لتفعيل المحرك.</p>
+            </div>
+            <div class="guide-step">
+                <span class="step-icon">3</span>
+                <p>يقوم النظام حالياً بتحليل SSL، وفحص VirusTotal، وكشف انتحال الماركات.</p>
+            </div>
+            <div class="guide-step">
+                <span class="step-icon">4</span>
+                <p>راجع <b>التقرير الجنائي</b>؛ اللون الأحمر يعني تهديد مؤكد، والأخضر يعني رابط آمن.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        نظام SecuCode Pro © 2026 - مبرمج بواسطة طارق
+    </footer>
+
+    <script>
+        async function startAnalysis() {
+            const urlValue = document.getElementById('urlInput').value.strip;
+            const resultBox = document.getElementById('result-box');
+            const statusTitle = document.getElementById('status-title');
+            const findingsList = document.getElementById('findings');
+            const riskMeter = document.getElementById('risk-meter');
+
+            if (!urlValue) {
+                alert("يرجى إدخال رابط أولاً!");
+                return;
+            }
+
+            // حالة التحميل
+            resultBox.style.display = 'block';
+            resultBox.className = ""; // مسح الألوان القديمة
+            statusTitle.innerText = "جاري التحليل الرقمي... 🔍";
+            riskMeter.innerText = "";
+            findingsList.innerHTML = "";
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ link: urlValue })
+                });
+
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    // تحديث المظهر بناءً على النتيجة
+                    if (data.is_blacklisted) {
+                        resultBox.classList.add('danger');
+                        statusTitle.innerText = "⚠️ تنبيه: رابط ضار مكتشف!";
+                        statusTitle.style.color = "#ef4444";
+                    } else {
+                        resultBox.classList.add('safe');
+                        statusTitle.innerText = "✅ النتيجة: الرابط آمن للاستخدام";
+                        statusTitle.style.color = "#22c55e";
+                    }
+
+                    riskMeter.innerText = `درجة الخطورة المحسوبة: ${data.risk_score}%`;
+                    
+                    // عرض التقرير الجنائي
+                    findingsList.innerHTML = data.forensic_report
+                        .map(item => `<li>${item}</li>`)
+                        .join('');
+
+                } else {
+                    statusTitle.innerText = "❌ خطأ في السيرفر: " + data.message;
+                }
+            } catch (error) {
+                statusTitle.innerText = "❌ فشل الاتصال بالسيرفر، تأكد من تشغيل المشروع.";
+            }
+        }
     </script>
 </body>
 </html>
