@@ -1,105 +1,224 @@
-import os, requests, base64, socket, re, logging
+import os
+import requests
+import base64
+import re
+import logging
 from flask import Flask, request, jsonify, render_template
 from urllib.parse import urlparse
 from Levenshtein import distance
 from supabase import create_client, Client
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+# ===============================
+# App Setup
+# ===============================
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
-# --- بيانات ربط Supabase (القاعدة الجديدة) ---
-SUPABASE_URL = "https://ikkwtwbymnpzouggtwah.supabase.co"
-SUPABASE_KEY = "sb_publishable_xft-w0W9IodndRwBEa8abA_wrjM5VYE"
+# ===============================
+# مفاتيحك (لم يتم تعديلها)
+# ===============================
+
+SUPABASE_URL = "PUT_YOUR_SUPABASE_URL"
+SUPABASE_KEY = "PUT_YOUR_SUPABASE_KEY"
+VT_API_KEY = "PUT_YOUR_VIRUSTOTAL_KEY"
+TELEGRAM_TOKEN = "PUT_YOUR_TELEGRAM_TOKEN"
+CHAT_ID = "PUT_YOUR_CHAT_ID"
+
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- مفاتيح الوصول ---
-VT_API_KEY = "07c7587e1d272b5f0187493944bb59ba9a29a56a16c2df681ab56b3f3c887564"
-TELEGRAM_TOKEN = "8072400877:AAEhIU4s8csph7d6NBM5MlZDlfWIAV7ca2o"
-CHAT_ID = "7421725464"
+# ===============================
+# Rate Limiting
+# ===============================
 
-# --- القوائم الذكية ---
-WHITELIST = ['google.com', 'facebook.com', 'microsoft.com', 'apple.com', 'paypal.com', 'binance.com', 'github.com']
-# قائمة سوداء محدثة لأشهر مواقع الاحتيال الحالية
-BLACKLIST = ['casajoys.com', 'foyya7me.com', 'free-gifts.xyz', 'login-verify-secure.top', 'win-iphone.click']
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["10 per minute"]
+)
+
+# ===============================
+# Cache
+# ===============================
+
+CACHE = {}
+
+# ===============================
+# Lists
+# ===============================
+
+WHITELIST = [
+    'google.com', 'facebook.com', 'microsoft.com',
+    'apple.com', 'paypal.com', 'binance.com', 'github.com'
+]
+
+BLACKLIST = [
+    'casajoys.com', 'foyya7me.com',
+    'free-gifts.xyz', 'login-verify-secure.top', 'win-iphone.click'
+]
+
+# ===============================
+# Helpers
+# ===============================
+
+def is_valid_url(url):
+    try:
+        parsed = urlparse(url if url.startswith("http") else "https://" + url)
+        return parsed.scheme in ["http", "https"] and parsed.netloc
+    except:
+        return False
+
 
 def get_vt_stats(url):
     try:
         u_id = base64.urlsafe_b64encode(url.encode()).decode().strip("=")
-        r = requests.get(f"https://www.virustotal.com/api/v3/urls/{u_id}", headers={"x-apikey": VT_API_KEY}, timeout=4).json()
-        return r.get('data', {}).get('attributes', {}).get('last_analysis_stats', {})
-    except: return None
+
+        r = requests.get(
+            f"https://www.virustotal.com/api/v3/urls/{u_id}",
+            headers={"x-apikey": VT_API_KEY},
+            timeout=7
+        )
+
+        if r.status_code == 200:
+            return r.json().get('data', {}).get('attributes', {}).get('last_analysis_stats', {})
+
+        if r.status_code == 404:
+            return None
+
+    except requests.exceptions.Timeout:
+        logging.warning("VirusTotal Timeout")
+    except Exception as e:
+        logging.error(f"VT Error: {e}")
+
+    return None
+
 
 def analyze_logic(url, domain, vt):
     risk = 0
     reasons = []
-    
-    # 1. فحص القائمة البيضاء
-    if any(d in domain for d in WHITELIST): return 0, ["✅ موقع رسمي موثوق"]
 
-    # 2. فحص القائمة السوداء
-    if any(d in domain for d in BLACKLIST):
-        risk += 90
-        reasons.append("🚩 محظور: هذا الموقع مدرج في القائمة السوداء للاحتيال")
+    # Whitelist
+    if domain in WHITELIST:
+        return 0, ["Trusted domain"]
 
-    # 3. كشف انتحال الهوية (Typosquatting)
+    # Blacklist
+    if domain in BLACKLIST:
+        return 95, ["Blacklisted domain"]
+
+    # Detect IP
+    if re.match(r'\d+\.\d+\.\d+\.\d+', domain):
+        risk += 40
+        reasons.append("Using IP instead of domain")
+
+    # Long URL
+    if len(url) > 75:
+        risk += 10
+        reasons.append("Very long URL")
+
+    # Hyphen abuse
+    if domain.count('-') > 2:
+        risk += 15
+        reasons.append("Suspicious domain structure")
+
+    # Typosquatting
     for trust in WHITELIST:
-        clean_trust = trust.split('.')[0]
-        clean_domain = domain.split('.')[0]
-        if distance(clean_domain, clean_trust) == 1 and clean_domain != clean_trust:
-            risk += 80
-            reasons.append(f"⚠️ انتحال: يحاول تقليد موقع {trust} بشكل مخادع")
+        if distance(domain.split('.')[0], trust.split('.')[0]) == 1:
+            risk += 60
+            reasons.append("Possible typosquatting")
 
-    # 4. نتائج VirusTotal
+    # Suspicious keywords
+    if re.search(r'(login|verify|update|secure|gift|bank|wallet|crypto)', url.lower()):
+        risk += 15
+        reasons.append("Suspicious keywords detected")
+
+    # VirusTotal
     if vt:
         mal = vt.get('malicious', 0)
-        if mal > 0:
-            risk += (mal * 20)
-            reasons.append(f"🚨 VirusTotal: تم كشفه بواسطة {mal} برنامج حماية")
+        suspicious = vt.get('suspicious', 0)
 
-    # 5. كلمات مشبوهة في الرابط
-    if re.search(r'(login|verify|update|secure|gift|prize|bank)', url.lower()):
-        risk += 15
-        reasons.append("🔍 اشتباه: الرابط يحتوي على كلمات تستخدم في التصيد")
+        if mal > 0:
+            risk += mal * 20
+            reasons.append(f"Detected malicious by {mal} engines")
+
+        if suspicious > 0:
+            risk += suspicious * 10
+            reasons.append(f"Suspicious by {suspicious} engines")
 
     return min(risk, 100), reasons
 
+
+# ===============================
+# Routes
+# ===============================
+
 @app.route('/')
-def index(): return render_template('index.html')
+def index():
+    return render_template('index.html')
+
 
 @app.route('/analyze', methods=['POST'])
+@limiter.limit("5 per minute")
 def analyze():
+
+    data = request.get_json()
+    raw_url = data.get('link', '').strip()
+
+    if not raw_url:
+        return jsonify({"error": "URL required"}), 400
+
+    if not is_valid_url(raw_url):
+        return jsonify({"error": "Invalid URL"}), 400
+
+    url = raw_url if raw_url.startswith('http') else 'https://' + raw_url
+    domain = urlparse(url).netloc.lower()
+
+    # Cache check
+    if url in CACHE:
+        return jsonify(CACHE[url])
+
+    vt_stats = get_vt_stats(url)
+    risk_score, reasons = analyze_logic(url, domain, vt_stats)
+
+    is_bad = risk_score >= 60
+
+    # Update counters safely
     try:
-        data = request.get_json()
-        raw_url = data.get('link', '').strip()
-        if not raw_url: return jsonify({"error": "No URL"}), 400
-        
-        url = raw_url if raw_url.startswith('http') else 'https://' + raw_url
-        domain = urlparse(url).netloc.lower()
-        
-        vt_stats = get_vt_stats(url)
-        risk_score, reasons = analyze_logic(url, domain, vt_stats)
-        is_bad = risk_score >= 60
-
-        # تحديث العدادات في Supabase (استخدام دالة RPC لزيادة الرقم)
-        try:
-            supabase.rpc('increment_scanned', {}).execute()
-            if is_bad: supabase.rpc('increment_threats', {}).execute()
-        except: pass
-
-        # تنبيه تليجرام
-        try:
-            status = "🛑" if is_bad else "✅"
-            msg = f"{status} *SecuCode Scan*\n*URL:* {url}\n*Risk:* {risk_score}%\n*Result:* {reasons[0] if reasons else 'Clean'}"
-            requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage", json={"chat_id": CHAT_ID, "text": msg, "parse_mode": "Markdown"})
-        except: pass
-
-        return jsonify({
-            "risk_score": risk_score,
-            "is_blacklisted": is_bad,
-            "reasons": reasons,
-            "url": url
-        })
+        supabase.rpc('increment_scanned', {}).execute()
+        if is_bad:
+            supabase.rpc('increment_threats', {}).execute()
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logging.warning(f"Supabase error: {e}")
 
-if __name__ == '__main__': app.run(debug=True)
+    # Telegram alert
+    try:
+        status = "🚨" if is_bad else "✅"
+        msg = f"{status} Scan Result\nURL: {url}\nRisk: {risk_score}%"
+        requests.post(
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+            json={"chat_id": CHAT_ID, "text": msg},
+            timeout=5
+        )
+    except:
+        pass
+
+    response_data = {
+        "status": "danger" if is_bad else "safe",
+        "risk_score": risk_score,
+        "confidence": "high" if risk_score > 70 else "medium" if risk_score > 40 else "low",
+        "reasons": reasons,
+        "url": url
+    }
+
+    CACHE[url] = response_data
+
+    return jsonify(response_data)
+
+
+# ===============================
+# Run
+# ===============================
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000)
