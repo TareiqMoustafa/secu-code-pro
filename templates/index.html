@@ -3,269 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecuCode Pro | المنصة الذكية للأمن السيبراني</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <title>SecuCode Pro | المحرك الجنائي الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --primary-blue: #38bdf8;
-            --bg-dark: #0f172a;
-            --card-bg: #1e293b;
-            --danger-red: #ef4444;
-            --success-green: #22c55e;
+            --primary: #38bdf8;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --bg: #0f172a;
+            --card: rgba(30, 41, 59, 0.7);
         }
 
+        /* تنسيق الصفحة الأساسي */
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg-dark);
+            background-color: var(--bg);
             color: #f8fafc;
             margin: 0;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
         }
 
+        /* تأثير الأمواج المتحركة في الخلفية */
+        .wave-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            overflow: hidden;
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.07) 0%, transparent 70%);
+            top: -50%;
+            left: -50%;
+            border-radius: 40%;
+            animation: drift 20s infinite linear;
+        }
+
+        .wave:nth-child(2) {
+            animation: drift 35s infinite linear;
+            opacity: 0.5;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.04) 0%, transparent 60%);
+        }
+
+        @keyframes drift {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* الحاوية الرئيسية للمحتوى */
         .container {
             width: 100%;
-            max-width: 650px;
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            max-width: 550px;
+            background: var(--card);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 10;
         }
 
-        h1 {
-            color: var(--primary-blue);
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-            letter-spacing: -1px;
+        /* منطقة الشعار والنبض الضوئي */
+        .logo-area {
+            margin-bottom: 35px;
         }
 
-        .subtitle {
-            color: #94a3b8;
-            margin-bottom: 30px;
-            font-size: 0.95rem;
+        .logo-area h1 { 
+            color: var(--primary); 
+            font-size: 36px; 
+            margin: 0; 
+            font-weight: 700;
+            animation: pulse 3s infinite ease-in-out;
         }
 
-        .search-area {
+        @keyframes pulse {
+            0%, 100% { text-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
+            50% { text-shadow: 0 0 25px rgba(56, 189, 248, 0.7); }
+        }
+
+        .logo-area p { 
+            color: #94a3b8; 
+            font-size: 15px; 
+            margin-top: 10px; 
+        }
+
+        /* منطقة إدخال الرابط */
+        .search-wrapper {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 6px;
+            border-radius: 18px;
             display: flex;
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 15px 20px;
-            border-radius: 12px;
             border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
-            font-size: 1rem;
-            outline: none;
-            transition: 0.3s;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+        .search-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 12px 18px;
+            font-size: 16px;
+            outline: none;
+            direction: ltr; /* لكتابة الروابط بشكل صحيح */
         }
 
         button {
-            background: var(--primary-blue);
+            background: var(--primary);
             color: #0f172a;
-            padding: 0 30px;
-            border-radius: 12px;
             border: none;
-            font-weight: bold;
-            font-size: 1rem;
+            padding: 12px 28px;
+            border-radius: 14px;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.2s ease;
         }
 
         button:hover {
-            background: #7dd3fc;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
         }
 
+        /* صندوق النتائج الجنائي */
         #result-box {
             display: none;
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 16px;
+            margin-bottom: 30px;
+            padding: 25px;
+            border-radius: 20px;
             text-align: right;
-            animation: fadeIn 0.5s ease;
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .danger { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger-red); }
-        .safe { background: rgba(34, 197, 94, 0.15); border: 1px solid var(--success-green); }
+        .danger { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); }
+        .safe { background: rgba(34, 197, 94, 0.15); border: 1px solid var(--success); }
 
         .report-list {
-            list-style: none;
-            padding: 0;
-            margin: 10px 0 0;
-            font-size: 0.9rem;
+            margin: 15px 0 0;
+            padding-right: 20px;
+            font-size: 14px;
+            color: #cbd5e1;
         }
 
-        .report-list li {
-            margin-bottom: 6px;
-            padding-right: 15px;
-            position: relative;
-        }
-
-        .report-list li::before {
-            content: "•";
-            position: absolute;
-            right: 0;
-            color: var(--primary-blue);
-        }
-
-        /* دليل المستخدم */
-        .guide-section {
-            margin-top: 35px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
+        /* دليل تشغيل المستخدم */
+        .guide-card {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 22px;
+            padding: 25px;
             text-align: right;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .guide-section h3 {
-            font-size: 1.1rem;
-            color: var(--primary-blue);
-            margin-top: 0;
+        .guide-title {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: block;
+            font-size: 17px;
         }
 
-        .guide-step {
+        .step {
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 12px;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
             color: #94a3b8;
-            font-size: 0.85rem;
+            line-height: 1.6;
         }
 
-        .step-icon {
-            background: var(--primary-blue);
+        .step-num {
+            background: var(--primary);
             color: #0f172a;
-            min-width: 20px;
-            height: 20px;
-            border-radius: 50%;
+            min-width: 24px;
+            height: 24px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 800;
+            font-size: 13px;
         }
 
-        /* تذييل الصفحة */
-        footer {
-            margin-top: 40px;
-            color: #475569;
-            font-size: 0.8rem;
-        }
+        b { color: var(--primary); }
     </style>
 </head>
 <body>
 
+    <div class="wave-bg">
+        <div class="wave"></div>
+        <div class="wave"></div>
+    </div>
+
     <div class="container">
-        <h1>SecuCode Pro 🛡️</h1>
-        <p class="subtitle">محرك التحليل الجنائي الهجين لكشف التهديدات الرقمية</p>
-
-        <div class="search-area">
-            <input type="text" id="urlInput" placeholder="لصق الرابط المشبوه هنا...">
-            <button onclick="startAnalysis()">فحص الآن</button>
+        <div class="logo-area">
+            <h1>SecuCode Pro 🛡️</h1>
+            <p>المحرك الجنائي الهجين لكشف التهديدات الرقمية</p>
         </div>
 
-        <div id="result-box">
-            <div id="status-title" style="font-weight: bold; font-size: 1.2rem;"></div>
-            <div id="risk-meter" style="margin: 5px 0; font-size: 0.9rem;"></div>
-            <ul id="findings" class="report-list"></ul>
+        <div class="search-wrapper">
+            <input type="text" id="urlInput" placeholder="ضع الرابط هنا لفحصه..." autocomplete="off">
+            <button onclick="startScan()">فحص</button>
         </div>
 
-        <div class="guide-section">
-            <h3>📖 دليل تشغيل النظام (User Guide):</h3>
-            <div class="guide-step">
-                <span class="step-icon">1</span>
+        <div id="result-box"></div>
+
+        <div class="guide-card">
+            <span class="guide-title">📖 دليل تشغيل النظام (User Guide):</span>
+            <div class="step">
+                <div class="step-num">1</div>
                 <p>قم بنسخ الرابط المشكوك فيه من المتصفح أو الرسائل.</p>
             </div>
-            <div class="guide-step">
-                <span class="step-icon">2</span>
-                <p>الصق الرابط في المربع العلوي واضغط <b>"فحص الآن"</b> لتفعيل المحرك.</p>
+            <div class="step">
+                <div class="step-num">2</div>
+                <p>الصق الرابط في المربع العلوي واضغط <b>"فحص"</b> لتفعيل المحرك.</p>
             </div>
-            <div class="guide-step">
-                <span class="step-icon">3</span>
-                <p>يقوم النظام حالياً بتحليل SSL، وفحص VirusTotal، وكشف انتحال الماركات.</p>
+            <div class="step">
+                <div class="step-num">3</div>
+                <p>يقوم النظام حالياً بتحليل SSL، وفحص VirusTotal، وكشف الانتحال.</p>
             </div>
-            <div class="guide-step">
-                <span class="step-icon">4</span>
-                <p>راجع <b>التقرير الجنائي</b>؛ اللون الأحمر يعني تهديد مؤكد، والأخضر يعني رابط آمن.</p>
+            <div class="step">
+                <div class="step-num">4</div>
+                <p>اللون <span style="color:var(--danger)">الأحمر</span> تهديد مؤكد، واللون <span style="color:var(--success)">الأخضر</span> آمن.</p>
             </div>
         </div>
     </div>
 
-    <footer>
-        نظام SecuCode Pro © 2026 - مبرمج بواسطة طارق
-    </footer>
-
     <script>
-        async function startAnalysis() {
-            const urlValue = document.getElementById('urlInput').value.strip;
-            const resultBox = document.getElementById('result-box');
-            const statusTitle = document.getElementById('status-title');
-            const findingsList = document.getElementById('findings');
-            const riskMeter = document.getElementById('risk-meter');
-
-            if (!urlValue) {
+        async function startScan() {
+            const urlField = document.getElementById('urlInput');
+            const resBox = document.getElementById('result-box');
+            
+            if(!urlField.value.trim()) {
                 alert("يرجى إدخال رابط أولاً!");
                 return;
             }
 
-            // حالة التحميل
-            resultBox.style.display = 'block';
-            resultBox.className = ""; // مسح الألوان القديمة
-            statusTitle.innerText = "جاري التحليل الرقمي... 🔍";
-            riskMeter.innerText = "";
-            findingsList.innerHTML = "";
+            // تفعيل حالة التحميل
+            resBox.style.display = "block";
+            resBox.className = ""; 
+            resBox.style.background = "rgba(255,255,255,0.05)";
+            resBox.style.border = "1px solid rgba(255,255,255,0.1)";
+            resBox.innerHTML = "<div style='text-align:center; padding:10px'>جاري الفحص الجنائي الرقمي... 🔍</div>";
 
             try {
                 const response = await fetch('/analyze', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ link: urlValue })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({link: urlField.value})
                 });
-
+                
                 const data = await response.json();
-
-                if (data.status === "success") {
-                    // تحديث المظهر بناءً على النتيجة
-                    if (data.is_blacklisted) {
-                        resultBox.classList.add('danger');
-                        statusTitle.innerText = "⚠️ تنبيه: رابط ضار مكتشف!";
-                        statusTitle.style.color = "#ef4444";
-                    } else {
-                        resultBox.classList.add('safe');
-                        statusTitle.innerText = "✅ النتيجة: الرابط آمن للاستخدام";
-                        statusTitle.style.color = "#22c55e";
-                    }
-
-                    riskMeter.innerText = `درجة الخطورة المحسوبة: ${data.risk_score}%`;
+                
+                if(data.status === "success") {
+                    resBox.className = data.bad ? "danger" : "safe";
                     
-                    // عرض التقرير الجنائي
-                    findingsList.innerHTML = data.forensic_report
-                        .map(item => `<li>${item}</li>`)
-                        .join('');
-
+                    let html = `<b style="font-size:20px">${data.bad ? '⚠️ تهديد مكتشف!' : '✅ الرابط آمن للاستخدام'}</b>`;
+                    html += `<p style="margin:8px 0; font-size:15px">مستوى الخطورة: ${data.score}%</p>`;
+                    html += `<ul class="report-list">`;
+                    data.report.forEach(item => {
+                        html += `<li>${item}</li>`;
+                    });
+                    html += `</ul>`;
+                    
+                    resBox.innerHTML = html;
                 } else {
-                    statusTitle.innerText = "❌ خطأ في السيرفر: " + data.message;
+                    resBox.innerHTML = "<div style='color:var(--danger)'>❌ خطأ: " + data.message + "</div>";
                 }
             } catch (error) {
-                statusTitle.innerText = "❌ فشل الاتصال بالسيرفر، تأكد من تشغيل المشروع.";
+                resBox.innerHTML = "<div style='color:var(--danger)'>❌ فشل الاتصال بالسيرفر، تأكد من تشغيل المشروع.</div>";
             }
         }
     </script>
