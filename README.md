@@ -1,81 +1,58 @@
 # 🛡️ SecuCode Pro | Advanced Threat Intelligence Radar
 **Developed by: Tarek Mostafa (2026)**
 
-![Cybersecurity](https://img.shields.io/badge/Security-Advanced-blue?style=for-the-badge&logo=target)
+![Security](https://img.shields.io/badge/Security-Advanced-blue?style=for-the-badge&logo=target)
 ![Python](https://img.shields.io/badge/Backend-Flask-green?style=for-the-badge&logo=python)
-![Firebase](https://img.shields.io/badge/Database-Firebase_Realtime-orange?style=for-the-badge&logo=firebase)
+![Supabase](https://img.shields.io/badge/Database-Supabase-emerald?style=for-the-badge&logo=supabase)
+![License](https://img.shields.io/badge/License-CC_BY--NC--ND_4.0-red?style=for-the-badge)
 
-نظام سيكيور كود برو | SECUCODE PRO
+## 🌐 نظرة عامة | Overview
+نظام **سيكيور كود برو** هو محرك استخبارات تقني متطور مخصص لتحليل الروابط (URL Analysis) والكشف عن محاولات التصيد الاحتيالي (Phishing) والبرمجيات الخبيثة. يعمل النظام كدرع حماية استباقي يعتمد على خوارزميات المسافة اللفظية (Levenshtein) والربط مع قواعد بيانات عالمية.
 
+---
 
-​رادار الرصد الأمني المتطور - تطوير: طارق مصطفى (2026)
+## 🚀 المميزات التقنية | Key Features
+* **التحليل السلوكي الذكي:** كشف روابط التصيد التي تحاول انتحال صفة المواقع العالمية (Google, PayPal, etc).
+* **الربط مع VirusTotal:** فحص الروابط عبر أكثر من 70 محرك حماية عالمي بشكل لحظي.
+* **نظام إحصائيات متزامن:** استخدام **Supabase RPC** لتحديث عداد الفحوصات والتهديدات المكتشفة فوراً.
+* **حماية التردد (Rate Limiting):** دمج `Flask-Limiter` لمنع الهجمات العشوائية وإساءة استخدام الـ API.
+* **تنبيهات تليجرام الفورية:** إرسال تقرير فني مفصل للمطور عند رصد أي رابط عالي الخطورة.
 
+---
 
-​1. وصف النظام (Description)
+## 🛠️ البناء التقني | Tech Stack
+* **Backend:** Python (Flask Framework)
+* **Database:** Supabase (PostgreSQL with Edge Functions)
+* **Frontend:** HTML5, Tailwind CSS, Lucide Icons
+* **Security APIs:** VirusTotal v3 API, IPAPI (Server Intelligence)
+* **Protection:** Flask-Limiter & Python-dotenv
 
+---
 
-​نظام "سيكيور كود برو" هو محرك بحث أمني متقدم مخصص لتحليل الروابط والمواقع الإلكترونية. يعمل النظام كدرع حماية استباقي يقوم بفحص الأكواد البرمجية للمواقع لكشف محاولات التجسس واختراق الخصوصية قبل وقوعها.
+## 📊 درجات الخطورة | Risk Assessment
+| المستوى | الحالة | الإجراء المتبع |
+| :--- | :--- | :--- |
+| **Safe ✅** | موقع موثوق | يتم السماح بالدخول مع إظهار بيانات الخادم. |
+| **Suspicious ⚠️** | نشاط مشبوه | تنبيه المستخدم بوجود كلمات تصيد أو انتحال بسيط. |
+| **Critical 🚨** | تهديد مؤكد | حجب الرابط وإرسال تقرير فني فوري لتليجرام. |
 
+---
 
-​2. المميزات التقنية (Key Features)
+## 📜 التراخيص والخصوصية | License & Privacy
+هذا المشروع محمي بموجب رخصة:
+**Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International (CC BY-NC-ND 4.0)**
 
+* **يسمح بـ:** الاطلاع على الكود، استخدامه للأغراض التعليمية الشخصية، ومشاركته مع ذكر المصدر (طارق مصطفى).
+* **يُمنع بـ:** الاستخدام التجاري، بيع الكود، أو إعادة توزيعه بعد تعديله دون إذن كتابي صريح.
 
+> **Privacy Note:** يتبع النظام بروتوكول "تشفير البيانات اللحظي"؛ حيث لا يتم تخزين الروابط المفحوصة في سجلات دائمة لضمان خصوصية المستخدم.
 
+---
 
-​الفحص السلوكي الذكي: يقوم النظام بتحليل كود الـ JavaScript للمواقع لاكتشاف الأوامر المخفية.
+## 📞 التواصل | Contact
+**Main Developer:** Tarek Mostafa  
+**Version:** 1.3.0 (2026 Update)  
+**Status:** Operational 🟢
 
-
-​حماية الخصوصية البصرية: كشف المواقع التي تحاول تشغيل الكاميرا أو الميكروفون بدون إذن المستخدم.
-
-
-​مكافحة التصيد الاحتيالي: التعرف على الصفحات المزورة التي تحاول سرقة كلمات المرور والبيانات البنكية.
-
-
-​تحديثات لحظية: النظام مرتبط بقاعدة بيانات عالمية يتم تحديثها كل ساعة لإضافة أحدث المواقع المحظورة.
-
-
-​تقارير فورية: إرسال إشعار فني مفصل إلى المطور (طارق مصطفى) عبر تليجرام عند رصد أي رابط خطر.
-
-
-
-
-​3. لغات البرمجة والتقنيات (Technologies)
-
-
-
-
-​لغة بايثون (Python): لبرمجة المحرك الأمني ومعالجة البيانات الخلفية.
-
-
-​لغة جافا سكريبت (JavaScript): لبرمجة واجهة المستخدم التفاعلية.
-
-
-​قاعدة بيانات فايربيز (Firebase): لتخزين وعرض إحصائيات الفحص بشكل مباشر.
-
-
-​تنسيق تيلويند (Tailwind): لتصميم الواجهة بشكل عصري واحترافي.
-
-
-
-
-​4. درجات الخطورة (Risk Levels)
-
-
-
-
-​Safe (آمن): الموقع لا يحتوي على أي أكواد مشبوهة وموثوق عالمياً.
-
-
-​Critical (خطر): تم رصد سلوك تجسسي أو محاولة تصيد، ويُنصح بمغادرة الموقع فوراً.
-
-
-
-
-​5. سياسة الخصوصية (Privacy)
-
-
-​النظام يتبع بروتوكول "تشفير البيانات اللحظي"؛ حيث لا يتم حفظ الروابط المفحوصة في سجلات دائمة، مما يضمن خصوصية كاملة للمستخدمين أثناء عملية الفحص.
-
-
-​حقوق الملكية © 2026 - مطور النظام: طارق مصطفى
-
+---
+Copyright © 2026 - Tarek Mostafa. All rights reserved.
