@@ -2,130 +2,101 @@ import os
 import requests
 import base64
 import socket
+import ssl
 import time
-import json
+import math
 import logging
-import cloudinary
-import cloudinary.uploader
+import validators
 from flask import Flask, request, jsonify, render_template
 from urllib.parse import urlparse
-import firebase_admin
-from firebase_admin import credentials, db
+from Levenshtein import distance
+from supabase import create_client, Client
 
 app = Flask(__name__)
-
-# إعداد السجلات (Logging)
 logging.basicConfig(level=logging.INFO)
 
-# --- إعداد Cloudinary ---
-cloudinary.config( 
-  cloud_name = "dsn0uoooi", 
-  api_key = "977478274789475", 
-  api_secret = "DfXoA-V1Nuwq1EQbk1X-8HLPOOY"
-)
+# --- إعدادات الربط (تأكد من كتابتها بدقة) ---
+SUPABASE_URL = "https://ikkwtwbymnpzouggtwah.supabase.co"
+SUPABASE_KEY = "sb_publishable_xft-w0W9IodndRwBEa8abA_wrjM5VYE"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- بيانات الوصول والرموز الحساسة ---
-VT_API_KEY = "07c7587e1d272b5f0187493944bb59ba9a29a56a16c2df681ab56b3f3c887564"
-TELEGRAM_TOKEN = "8072400877:AAEhIU4s8csph7d6NBM5MlZDlfWIAV7ca2o"
-CHAT_ID = "7421725464"
+# مفتاح VirusTotal 
+VT_API_KEY = os.getenv("VT_API_KEY", "07c7587e1d272b5f0187493944bb59ba9a29a56a16c2df681ab56b3f3c887564")
 
-# إعدادات Firebase Admin SDK (تأكد من صحة الـ Private Key في ملفك الأصلي)
-FIREBASE_CONFIG = {
-  "type": "service_account",
-  "project_id": "secucode-pro",
-  "private_key_id": "131da2ca8578982b77e48fa71f8c4b65880b0784",
-  "private_key": os.getenv("FIREBASE_PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\n...").replace('\\n', '\n'),
-  "client_email": "firebase-adminsdk-fbsvc@secucode-pro.iam.gserviceaccount.com"
-}
+# القائمة السوداء الصارمة
+BANNED_DOMAINS = ['casajoys.com', 'foyya7me']
 
-# تشغيل Firebase
-try:
-    if not firebase_admin._apps:
-        cred = credentials.Certificate(FIREBASE_CONFIG)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://flutter-ai-playground-2de28-default-rtdb.europe-west1.firebasedatabase.app'
-        })
-except Exception as e:
-    logging.error(f"Firebase Init Error: {e}")
+def deep_forensic_engine(url):
+    parsed = urlparse(url)
+    domain = parsed.netloc.lower()
+    
+    # 1. فحص الحظر اليدوي الفوري
+    if any(banned in url.lower() for banned in BANNED_DOMAINS):
+        return {"risk_score": 100, "is_blacklisted": True, "findings": ["⚠️ حظر إداري: الدومين مدرج في القائمة السوداء"]}
 
-WHITELIST_DOMAINS = ['google.com', 'microsoft.com', 'apple.com', 'facebook.com', 'github.com', 'wikipedia.org']
-
-# --- الوظائف المساعدة ---
-
-def get_vt_stats(url):
+    risk_points = 0
+    findings = []
+    
+    # 2. فحص VirusTotal
     try:
         url_id = base64.urlsafe_b64encode(url.encode()).decode().strip("=")
-        headers = {"x-apikey": VT_API_KEY}
-        response = requests.get(f"https://www.virustotal.com/api/v3/urls/{url_id}", headers=headers, timeout=10)
-        if response.status_code == 200:
-            return response.json()['data']['attributes']['last_analysis_stats']
-        return None
-    except: return None
+        vt_res = requests.get(f"https://www.virustotal.com/api/v3/urls/{url_id}", 
+                             headers={"x-apikey": VT_API_KEY}, timeout=4).json()
+        mal_stats = vt_res.get('data', {}).get('attributes', {}).get('last_analysis_stats', {})
+        malicious = mal_stats.get('malicious', 0)
+        if malicious > 0:
+            risk_points += (malicious * 25)
+            findings.append(f"🚩 VirusTotal: مكتشف بواسطة {malicious} محرك")
+    except: pass
 
-def get_forensics(domain):
+    # 3. فحص التزييف (Levenshtein)
+    for brand in ['google', 'facebook', 'paypal', 'apple']:
+        if 0 < distance(domain.split('.')[0], brand) <= 2:
+            risk_points += 70
+            findings.append(f"🔍 انتحال هوية: تشابه مع {brand.upper()}")
+
+    # 4. فحص SSL
     try:
-        ip = socket.gethostbyname(domain)
-        geo = requests.get(f"https://ipapi.co/{ip}/json/", timeout=5).json()
-        return {
-            "ip": ip,
-            "country": geo.get("country_name", "Unknown"),
-            "org": geo.get("org", "Private Infrastructure")
-        }
+        context = ssl.create_default_context()
+        with socket.create_connection((domain, 443), timeout=2) as sock:
+            with context.wrap_socket(sock, server_hostname=domain):
+                findings.append("✅ اتصال مشفر وآمن")
     except:
-        return {"ip": "0.0.0.0", "country": "Cloud Nodes", "org": "CDN/Hidden"}
+        risk_points += 40
+        findings.append("🚫 اتصال غير آمن (بدون SSL)")
 
-# --- المسارات (Routes) ---
-
-@app.route('/')
-def index():
-    return render_template('index.html')
+    score = min(risk_points, 100)
+    return {"risk_score": score, "is_blacklisted": score >= 50, "findings": findings}
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
     try:
         data = request.get_json()
-        raw_url = data.get('link', '').strip()
-        if not raw_url: return jsonify({"error": "No URL provided"}), 400
+        target_url = data.get('link', '').strip()
+        if not target_url: return jsonify({"status": "error", "message": "الرابط فارغ"}), 400
         
-        url = raw_url if raw_url.startswith('http') else 'https://' + raw_url
-        domain = urlparse(url).netloc.lower() or url
+        if not target_url.startswith(('http://', 'https://')): target_url = "https://" + target_url
         
-        server_info = get_forensics(domain)
-        vt_stats = get_vt_stats(url)
+        analysis = deep_forensic_engine(target_url)
         
-        is_official = any(d in domain for d in WHITELIST_DOMAINS)
-        mal_count = vt_stats.get('malicious', 0) if vt_stats else 0
-        risk_score = 0 if is_official else min(20 + (mal_count * 20), 100)
-        is_blacklisted = risk_score >= 60
-
-        # تحديث Firebase
+        # تحديث Supabase (تأكد من وجود وظائف الـ RPC في Supabase SQL)
         try:
-            db.reference('stats/clicks').transaction(lambda c: (c or 0) + 1)
-            if is_blacklisted:
-                db.reference('stats/threats').transaction(lambda t: (t or 0) + 1)
-        except: pass
-
-        # تنبيه تليجرام
-        try:
-            status_icon = "🛑" if is_blacklisted else "✅"
-            msg = f"{status_icon} *SecuCode Scan*\n*Domain:* {domain}\n*Risk:* {risk_score}%\n*IP:* {server_info['ip']}"
-            requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage", 
-                          json={"chat_id": CHAT_ID, "text": msg, "parse_mode": "Markdown"})
+            supabase.rpc('increment_scanned', {}).execute()
+            if analysis["is_blacklisted"]:
+                supabase.rpc('increment_threats', {}).execute()
         except: pass
 
         return jsonify({
-            "is_official": is_official,
-            "is_blacklisted": is_blacklisted,
-            "risk_score": risk_score,
-            "server": server_info,
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "screenshot": f"https://s0.wp.com/mshots/v1/{url}?w=800&h=600",
-            "url": url
+            "status": "success",
+            "risk_score": analysis["risk_score"],
+            "is_blacklisted": analysis["is_blacklisted"],
+            "forensic_report": analysis["findings"]
         })
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"status": "error", "message": str(e)}), 500
 
-# تم حذف مسار generate_report نهائياً لمنع أي أخطاء متعلقة بالـ PDF
+@app.route('/')
+def home(): return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
