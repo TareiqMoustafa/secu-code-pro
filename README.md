@@ -48,9 +48,9 @@
 > **Privacy Note:** يتبع النظام بروتوكول "تشفير البيانات اللحظي"؛ حيث لا يتم تخزين الروابط المفحوصة في سجلات دائمة لضمان خصوصية المستخدم.
 
 ---
-
 ## 📞 التواصل | Contact
 **Main Developer:** Tarek Mostafa  
+**Email:** [Taremoustafa12@gmail.com](mailto:Taremoustafa12@gmail.com)  
 **Version:** 1.3.0 (2026 Update)  
 **Status:** Operational 🟢
 
