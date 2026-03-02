@@ -1,7 +1,9 @@
 flask
 requests
 python-dotenv
+firebase-admin
+gunicorn
+cloudinary
 python-Levenshtein
 validators
 supabase
-gunicorn
