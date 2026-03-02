@@ -2,5 +2,4 @@ flask
 requests
 python-Levenshtein
 supabase
-validators
-gunicorn
+flask-limiter
