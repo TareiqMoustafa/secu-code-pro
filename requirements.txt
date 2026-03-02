@@ -1,6 +1,6 @@
 flask
 requests
 python-Levenshtein
-validators
 supabase
+validators
 gunicorn
