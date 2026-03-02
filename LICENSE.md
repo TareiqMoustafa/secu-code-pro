@@ -1,20 +1,28 @@
-MIT License
+هذا العمل مرخص بموجب رخصة المشاع الإبداعي: النسب - غير تجاري - منع الاشتقاق 4.0 دولي.
 
-​Copyright (c) 2025 Tarek Mostafa (طارق مصطفى)
 
-​Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-​The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-​THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+​يسمح لك بـ:
+
+
+
+
+​المشاركة: نسخ وإعادة توزيع المادة في أي وسيط أو تنسيق.
+
+
+
+
+​وفقاً للشروط التالية:
+
+
+
+
+​نسب المصنف: يجب عليك إرجاع الحقوق للمؤلف الأصلي (طارق مصطفى)، وتوفير رابط للمستودع (Repository)، وتوضيح ما إذا كانت هناك تعديلات قد أجريت.
+
+
+​غير تجاري: لا يسمح لك باستخدام هذه المادة لأغراض تجارية أو لتحقيق ربح مادي.
+
+
+​منع الاشتقاق: في حال قمت بإعادة صياغة المادة أو تحويلها أو البناء عليها، لا يجوز لك توزيع المادة المعدلة دون إذن كتابي صريح.
+
+
 
