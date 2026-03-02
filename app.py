@@ -2,126 +2,130 @@ import os
 import requests
 import base64
 import socket
-import ssl
 import time
-import math
+import json
 import logging
-import re
-import validators
+import cloudinary
+import cloudinary.uploader
 from flask import Flask, request, jsonify, render_template
 from urllib.parse import urlparse
-from Levenshtein import distance
-from supabase import create_client, Client
+import firebase_admin
+from firebase_admin import credentials, db
 
 app = Flask(__name__)
+
+# إعداد السجلات (Logging)
 logging.basicConfig(level=logging.INFO)
 
-# --- إعدادات Supabase الخاصة بك (تم دمجها بنجاح) ---
-SUPABASE_URL = "https://ikkwtwbymnpzouggtwah.supabase.co"
-SUPABASE_KEY = "sb_publishable_xft-w0W9IodndRwBEa8abA_wrjM5VYE"
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# --- إعداد Cloudinary ---
+cloudinary.config( 
+  cloud_name = "dsn0uoooi", 
+  api_key = "977478274789475", 
+  api_secret = "DfXoA-V1Nuwq1EQbk1X-8HLPOOY"
+)
 
-# --- القائمة السوداء الصارمة (Strict Blacklist) ---
-BANNED_DOMAINS = ['casajoys.com', 'foyya7me']
+# --- بيانات الوصول والرموز الحساسة ---
+VT_API_KEY = "07c7587e1d272b5f0187493944bb59ba9a29a56a16c2df681ab56b3f3c887564"
+TELEGRAM_TOKEN = "8072400877:AAEhIU4s8csph7d6NBM5MlZDlfWIAV7ca2o"
+CHAT_ID = "7421725464"
 
-def calculate_entropy(text):
-    """حساب عشوائية الدومين لكشف الروابط المولدة آلياً"""
-    if not text: return 0
-    probs = [float(text.count(c)) / len(text) for c in dict.fromkeys(list(text))]
-    return - sum([p * math.log(p) / math.log(2.0) for p in probs])
+# إعدادات Firebase Admin SDK (تأكد من صحة الـ Private Key في ملفك الأصلي)
+FIREBASE_CONFIG = {
+  "type": "service_account",
+  "project_id": "secucode-pro",
+  "private_key_id": "131da2ca8578982b77e48fa71f8c4b65880b0784",
+  "private_key": os.getenv("FIREBASE_PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\n...").replace('\\n', '\n'),
+  "client_email": "firebase-adminsdk-fbsvc@secucode-pro.iam.gserviceaccount.com"
+}
 
-def deep_forensic_engine(url):
-    """المحرك الجنائي لتحليل الرابط"""
-    parsed = urlparse(url)
-    domain = parsed.netloc.lower()
-    
-    # 1. الحظر الفوري (Blacklist)
-    if any(banned in url.lower() for banned in BANNED_DOMAINS):
-        return {
-            "risk_score": 100,
-            "is_blacklisted": True,
-            "findings": ["⚠️ حظر صارم: هذا الدومين مدرج في القائمة السوداء العالمية", "❌ تم منع الوصول: مصدر تهديد معروف"]
-        }
+# تشغيل Firebase
+try:
+    if not firebase_admin._apps:
+        cred = credentials.Certificate(FIREBASE_CONFIG)
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://flutter-ai-playground-2de28-default-rtdb.europe-west1.firebasedatabase.app'
+        })
+except Exception as e:
+    logging.error(f"Firebase Init Error: {e}")
 
-    risk_points = 0
-    findings = []
-    
-    # 2. كشف التزييف (Typosquatting)
-    sensitive_brands = ['google', 'facebook', 'paypal', 'binance', 'apple', 'microsoft', 'netflix', 'amazon']
-    clean_name = domain.split('.')[0]
-    for brand in sensitive_brands:
-        if 0 < distance(clean_name, brand) <= 2:
-            risk_points += 85
-            findings.append(f"🚩 تنبيه انتحال: الرابط يحاول تقليد موقع {brand.upper()} الرسمي")
+WHITELIST_DOMAINS = ['google.com', 'microsoft.com', 'apple.com', 'facebook.com', 'github.com', 'wikipedia.org']
 
-    # 3. تحليل الانتروبيا (DGA Detection)
-    if calculate_entropy(domain) > 3.8:
-        risk_points += 40
-        findings.append("🔍 نمط مشبوه: اسم الدومين يبدو وكأنه مولد آلياً بواسطة برمجيات خبيثة")
+# --- الوظائف المساعدة ---
 
-    # 4. فحص الـ SSL/TLS
+def get_vt_stats(url):
     try:
-        context = ssl.create_default_context()
-        with socket.create_connection((domain, 443), timeout=2) as sock:
-            with context.wrap_socket(sock, server_hostname=domain) as ssock:
-                findings.append("✅ اتصال آمن: شهادة الـ SSL صالحة ومفعلة")
-    except:
-        risk_points += 45
-        findings.append("🚫 خطر أمني: الاتصال غير مشفر (لا يوجد SSL)")
+        url_id = base64.urlsafe_b64encode(url.encode()).decode().strip("=")
+        headers = {"x-apikey": VT_API_KEY}
+        response = requests.get(f"https://www.virustotal.com/api/v3/urls/{url_id}", headers=headers, timeout=10)
+        if response.status_code == 200:
+            return response.json()['data']['attributes']['last_analysis_stats']
+        return None
+    except: return None
 
-    final_score = min(risk_points, 100)
-    return {
-        "risk_score": final_score,
-        "is_blacklisted": final_score >= 60,
-        "findings": findings
-    }
+def get_forensics(domain):
+    try:
+        ip = socket.gethostbyname(domain)
+        geo = requests.get(f"https://ipapi.co/{ip}/json/", timeout=5).json()
+        return {
+            "ip": ip,
+            "country": geo.get("country_name", "Unknown"),
+            "org": geo.get("org", "Private Infrastructure")
+        }
+    except:
+        return {"ip": "0.0.0.0", "country": "Cloud Nodes", "org": "CDN/Hidden"}
+
+# --- المسارات (Routes) ---
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    start_time = time.time()
     try:
         data = request.get_json()
-        target_url = data.get('link', '').strip()
-
-        if not target_url:
-            return jsonify({"status": "error", "message": "الرابط مطلوب"}), 400
-            
-        processed_url = target_url if target_url.startswith(('http://', 'https://')) else "https://" + target_url
-
-        if not validators.url(processed_url):
-            return jsonify({"status": "error", "message": "صيغة الرابط غير صحيحة"}), 400
-
-        try:
-            final_target = requests.head(processed_url, allow_redirects=True, timeout=5).url
-        except:
-            final_target = processed_url
-            
-        analysis = deep_forensic_engine(final_target)
+        raw_url = data.get('link', '').strip()
+        if not raw_url: return jsonify({"error": "No URL provided"}), 400
         
-        # --- تحديث العدادات في Supabase ---
+        url = raw_url if raw_url.startswith('http') else 'https://' + raw_url
+        domain = urlparse(url).netloc.lower() or url
+        
+        server_info = get_forensics(domain)
+        vt_stats = get_vt_stats(url)
+        
+        is_official = any(d in domain for d in WHITELIST_DOMAINS)
+        mal_count = vt_stats.get('malicious', 0) if vt_stats else 0
+        risk_score = 0 if is_official else min(20 + (mal_count * 20), 100)
+        is_blacklisted = risk_score >= 60
+
+        # تحديث Firebase
         try:
-            supabase.rpc('increment_scanned', {}).execute()
-            if analysis["is_blacklisted"]:
-                supabase.rpc('increment_threats', {}).execute()
-        except Exception as e:
-            logging.error(f"Database Error: {e}")
+            db.reference('stats/clicks').transaction(lambda c: (c or 0) + 1)
+            if is_blacklisted:
+                db.reference('stats/threats').transaction(lambda t: (t or 0) + 1)
+        except: pass
+
+        # تنبيه تليجرام
+        try:
+            status_icon = "🛑" if is_blacklisted else "✅"
+            msg = f"{status_icon} *SecuCode Scan*\n*Domain:* {domain}\n*Risk:* {risk_score}%\n*IP:* {server_info['ip']}"
+            requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage", 
+                          json={"chat_id": CHAT_ID, "text": msg, "parse_mode": "Markdown"})
+        except: pass
 
         return jsonify({
-            "status": "Verified",
-            "url": final_target,
-            "risk_score": analysis["risk_score"],
-            "is_blacklisted": analysis["is_blacklisted"],
-            "forensic_report": analysis["findings"],
-            "latency": f"{int((time.time() - start_time) * 1000)}ms",
-            "timestamp": time.strftime("%H:%M:%S")
+            "is_official": is_official,
+            "is_blacklisted": is_blacklisted,
+            "risk_score": risk_score,
+            "server": server_info,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "screenshot": f"https://s0.wp.com/mshots/v1/{url}?w=800&h=600",
+            "url": url
         })
-
     except Exception as e:
-        return jsonify({"status": "error", "message": "فشل في التحليل"}), 500
+        return jsonify({"error": str(e)}), 500
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+# تم حذف مسار generate_report نهائياً لمنع أي أخطاء متعلقة بالـ PDF
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
