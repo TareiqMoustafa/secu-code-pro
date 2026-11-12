@@ -1,0 +1,6 @@
+flask
+requests
+python-Levenshtein
+supabase
+flask-limiter
+gunicorn
