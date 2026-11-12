@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Scan {
+  id            String   @id @default(uuid())
+  url           String
+  domain        String
+  overallStatus String
+  riskScore     Int
+  sourcesData   Json
+  createdAt     DateTime @default(now())
+}
+
+model Blacklist {
+  id        String   @id @default(uuid())
+  domain    String   @unique
+  reason    String?
+  createdAt DateTime @default(now())
+}
+
+model Whitelist {
+  id        String   @id @default(uuid())
+  domain    String   @unique
+  createdAt DateTime @default(now())
+}
