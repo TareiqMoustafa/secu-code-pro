@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>تسجيل الدخول - SecuCode Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(ellipse at 20% 30%, #0a0f2a, #03050b);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .particle {
+            position: absolute;
+            background: rgba(0, 229, 255, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: floatParticle 12s infinite ease-in-out;
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(0) scale(1); opacity: 0.3; }
+            50% { transform: translateY(-50px) scale(1.2); opacity: 0.8; }
+            100% { transform: translateY(0) scale(1); opacity: 0.3; }
+        }
+        .glass-card {
+            background: rgba(12, 20, 35, 0.7);
+            backdrop-filter: blur(16px);
+            border-radius: 2rem;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(0,229,255,0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(0, 229, 255, 0.6);
+            box-shadow: 0 25px 45px rgba(0,0,0,0.5), 0 0 30px rgba(0,229,255,0.2);
+        }
+        .input-field {
+            background: rgba(0, 0, 0, 0.45);
+            border: 1.5px solid rgba(0, 229, 255, 0.3);
+            border-radius: 1rem;
+            padding: 0.9rem 1.2rem;
+            width: 100%;
+            color: #e2e8f0;
+            font-size: 1rem;
+            transition: all 0.3s;
+            outline: none;
+            direction: rtl;
+        }
+        .input-field:focus {
+            border-color: #00e5ff;
+            box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.2);
+            background: rgba(0, 0, 0, 0.6);
+        }
+        .input-field::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+        .password-wrapper {
+            position: relative;
+        }
+        .toggle-password {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #94a3b8;
+            transition: color 0.2s;
+            font-size: 1.2rem;
+        }
+        .toggle-password:hover {
+            color: #00e5ff;
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #0057b7, #00b4d8);
+            border: none;
+            border-radius: 1rem;
+            padding: 0.9rem;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.3s;
+            width: 100%;
+        }
+        .btn-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px -5px rgba(0, 180, 216, 0.5);
+        }
+        .btn-gradient:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-loader {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .link-cyan {
+            color: #00e5ff;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .link-cyan:hover {
+            color: #ffab00;
+            text-decoration: underline;
+        }
+        .fade-up {
+            animation: fadeUp 0.6s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .centered-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .error-shake {
+            animation: shake 0.3s ease-in-out 0s 2;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="centered-container">
+        <div class="particle" style="width: 150px; height: 150px; top: 10%; left: -50px; animation-duration: 20s;"></div>
+        <div class="particle" style="width: 80px; height: 80px; bottom: 15%; right: 5%; animation-duration: 15s; animation-delay: 2s;"></div>
+        <div class="particle" style="width: 200px; height: 200px; top: 60%; left: 20%; animation-duration: 25s; opacity: 0.1;"></div>
+        <div class="particle" style="width: 50px; height: 50px; top: 30%; right: 15%; animation-duration: 12s;"></div>
+
+        <div class="w-full max-w-md fade-up">
+            <div class="glass-card p-8 space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="flex justify-center">
+                        <img src="https://raw.githubusercontent.com/bablomarouan376-boop/secu-code-pro/main/static/og-image.jpg" alt="SecuCode Pro" class="w-16 h-16 rounded-2xl border border-cyan-500/30 shadow-lg">
+                    </div>
+                    <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">SecuCode Pro</h1>
+                    <p class="text-slate-400 text-sm">منصة استخبارات التهديدات الرقمية</p>
+                </div>
+
+                <div class="space-y-5">
+                    <div class="space-y-2">
+                        <label class="text-slate-300 text-sm block">البريد الإلكتروني</label>
+                        <input type="email" id="email" class="input-field" placeholder="example@domain.com" autocomplete="email">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-slate-300 text-sm block">كلمة المرور</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" class="input-field" placeholder="••••••••" autocomplete="current-password">
+                            <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <label class="flex items-center gap-2 text-slate-400">
+                            <input type="checkbox" id="rememberMe" class="rounded bg-black/40 border-cyan-500/30 text-cyan-500 focus:ring-cyan-500">
+                            <span>تذكرني</span>
+                        </label>
+                        <a href="/reset-password-request-page" class="link-cyan text-sm">نسيت كلمة المرور؟</a>
+                    </div>
+                    <button onclick="login()" id="loginBtn" class="btn-gradient">دخول</button>
+                </div>
+
+                <div class="text-center text-slate-400 text-sm space-y-2">
+                    <p>ليس لديك حساب؟ <a href="/signup-page" class="link-cyan font-semibold">إنشاء حساب جديد</a></p>
+                    <p class="text-xs text-slate-500 mt-4">© 2026 SecuCode Pro - جميع الحقوق محفوظة</p>
+                </div>
+                <div id="error" class="text-red-400 text-sm text-center hidden bg-red-500/10 p-2 rounded-lg"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePasswordVisibility() {
+            const pwd = document.getElementById('password');
+            const icon = document.querySelector('.toggle-password');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                icon.textContent = '🙈';
+            } else {
+                pwd.type = 'password';
+                icon.textContent = '👁️';
+            }
+        }
+
+        if (localStorage.getItem('remembered_email')) {
+            document.getElementById('email').value = localStorage.getItem('remembered_email');
+            document.getElementById('rememberMe').checked = true;
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('loginBtn');
+            const rememberMe = document.getElementById('rememberMe').checked;
+            const errorDiv = document.getElementById('error');
+            
+            errorDiv.classList.add('hidden');
+            if (!email || !password) {
+                errorDiv.innerText = 'يرجى إدخال البريد الإلكتروني وكلمة المرور';
+                errorDiv.classList.remove('hidden');
+                errorDiv.classList.add('error-shake');
+                setTimeout(() => errorDiv.classList.remove('error-shake'), 300);
+                return;
+            }
+            
+            if (rememberMe) {
+                localStorage.setItem('remembered_email', email);
+            } else {
+                localStorage.removeItem('remembered_email');
+            }
+            
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="btn-loader"></span> جاري تسجيل الدخول...';
+            
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'فشل تسجيل الدخول');
+                localStorage.setItem('access_token', data.access_token);
+                window.location.href = '/';
+            } catch (err) {
+                errorDiv.innerText = err.message;
+                errorDiv.classList.remove('hidden');
+                errorDiv.classList.add('error-shake');
+                setTimeout(() => errorDiv.classList.remove('error-shake'), 300);
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+        document.getElementById('email').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') document.getElementById('password').focus();
+        });
+    </script>
+</body>
+</html>
