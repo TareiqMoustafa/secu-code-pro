@@ -1,25 +1,5 @@
 {
-  "version": 2,
-  "builds": [{ "src": "app.py", "use": "@vercel/python" }],
-  "routes": [
-    { "src": "/static/(.*)", "dest": "/static/$1" },
-    { "src": "/(.*)", "dest": "app.py" }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" }
-      ]
-    }
-  ],
-  "functions": {
-    "app.py": {
-      "maxDuration": 10,
-      "memory": 1024
-    }
-  }
+  "framework": "nextjs",
+  "buildCommand": "prisma generate && next build",
+  "outputDirectory": ".next"
 }
