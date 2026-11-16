@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>إعدادات SecuCode Pro</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+      background: #020617; color: #f1f5f9;
+      max-width: 480px; margin: 40px auto; padding: 24px;
+    }
+    h1 { font-size: 20px; margin-bottom: 8px; }
+    p { color: #94a3b8; font-size: 13px; margin-bottom: 20px; line-height: 1.6; }
+    label { display: block; font-size: 12px; font-weight: 700; color: #64748b; margin-bottom: 6px; }
+    input {
+      width: 100%; padding: 12px 14px; border-radius: 12px;
+      border: 1px solid #1e293b; background: #0f172a; color: #f1f5f9;
+      font-size: 14px; direction: ltr; text-align: left;
+    }
+    button {
+      margin-top: 16px; width: 100%; padding: 12px; border: none; border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #0891b2); color: white; font-weight: 800; cursor: pointer;
+    }
+    .ok { color: #10b981; font-size: 13px; margin-top: 12px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>SecuCode <span style="color:#22d3ee">Pro</span> — الإعدادات</h1>
+  <p>ضع رابط موقع SecuCode Pro المنشور على Vercel (بدون شرطة في النهاية).</p>
+  <label>API Base URL</label>
+  <input id="apiBase" type="url" placeholder="https://your-app.vercel.app" />
+  <button id="save">حفظ</button>
+  <div class="ok" id="ok">تم الحفظ ✓</div>
+  <script>
+    chrome.storage.sync.get({ apiBase: "" }, (d) => {
+      document.getElementById("apiBase").value = d.apiBase || "";
+    });
+    document.getElementById("save").onclick = () => {
+      const v = document.getElementById("apiBase").value.trim().replace(/\/$/, "");
+      chrome.storage.sync.set({ apiBase: v }, () => {
+        const ok = document.getElementById("ok");
+        ok.style.display = "block";
+        setTimeout(() => ok.style.display = "none", 2000);
+      });
+    };
+  </script>
+</body>
+</html>
