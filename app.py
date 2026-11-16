@@ -14,11 +14,12 @@ load_dotenv()
 from utils.analyzer import analyze_url
 from utils import storage
 
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 app = Flask(
     __name__,
-    static_folder="static",
+    static_folder=os.path.join(_BASE_DIR, "static"),
     static_url_path="/static",
-    template_folder="templates",
+    template_folder=os.path.join(_BASE_DIR, "templates"),
 )
 
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "").strip()
@@ -71,7 +72,8 @@ def service_worker():
 
 @app.route("/static/<path:filename>")
 def serve_static(filename):
-    return send_from_directory(app.static_folder, filename)
+    static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+    return send_from_directory(static_dir, filename)
 
 
 # ─────────────────────────────────────────────
