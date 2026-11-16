@@ -37,7 +37,7 @@
     <section class="glass rounded-2xl p-6 space-y-3">
       <h2 class="font-black text-cyan-400 text-sm tracking-widest uppercase">POST /api/analyze</h2>
       <p class="text-sm text-slate-400">فحص رابط واحد عبر جميع المصادر + قواعد التهديد الحيّة</p>
-      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">curl -X POST https://YOUR-DOMAIN/api/analyze \
+      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">curl -X POST https://secu-code-pro.vercel.app/api/analyze \
   -H "Content-Type: application/json" \
   -d '{"link":"https://example.com"}'</pre>
     </section>
@@ -45,7 +45,7 @@
     <section class="glass rounded-2xl p-6 space-y-3">
       <h2 class="font-black text-cyan-400 text-sm tracking-widest uppercase">POST /api/bulk</h2>
       <p class="text-sm text-slate-400">فحص حتى 8 روابط دفعة واحدة — مثالي للقوائم والتحقق السريع</p>
-      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">curl -X POST https://YOUR-DOMAIN/api/bulk \
+      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">curl -X POST https://secu-code-pro.vercel.app/api/bulk \
   -H "Content-Type: application/json" \
   -d '{"urls":["https://a.com","https://b.com"]}'</pre>
     </section>
@@ -53,7 +53,7 @@
     <section class="glass rounded-2xl p-6 space-y-3">
       <h2 class="font-black text-cyan-400 text-sm tracking-widest uppercase">GET /api/badge?domain=example.com</h2>
       <p class="text-sm text-slate-400">شارة ثقة SVG قابلة للتضمين في أي موقع — تسويق فيروسي مجاني</p>
-      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">&lt;img src="https://YOUR-DOMAIN/api/badge?domain=yoursite.com" alt="SecuCode" /&gt;</pre>
+      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">&lt;img src="https://secu-code-pro.vercel.app/api/badge?domain=yoursite.com" alt="SecuCode" /&gt;</pre>
       <div class="pt-2">
         <img src="/api/badge?domain=google.com" alt="badge demo" class="rounded-lg" />
       </div>
@@ -62,13 +62,13 @@
     <section class="glass rounded-2xl p-6 space-y-3">
       <h2 class="font-black text-cyan-400 text-sm tracking-widest uppercase">GET /r/{report_id}</h2>
       <p class="text-sm text-slate-400">تقرير عام قابل للمشاركة — رابط دائم لكل عملية فحص</p>
-      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">https://YOUR-DOMAIN/r/SCR-A1B2C3D4E5F6</pre>
+      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">https://secu-code-pro.vercel.app/r/SCR-A1B2C3D4E5F6</pre>
     </section>
 
     <section class="glass rounded-2xl p-6 space-y-3">
       <h2 class="font-black text-cyan-400 text-sm tracking-widest uppercase">GET /api/domain/{domain}</h2>
       <p class="text-sm text-slate-400">استخبارات مجمّعة لنطاق: السجل + القواعد الحيّة + القوائم</p>
-      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">curl https://YOUR-DOMAIN/api/domain/example.com</pre>
+      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 border border-slate-800">curl https://secu-code-pro.vercel.app/api/domain/example.com</pre>
     </section>
 
     <section class="glass rounded-2xl p-6 space-y-3">
