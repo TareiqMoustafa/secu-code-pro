@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>فحص جماعي | SecuCode Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: 'Cairo', system-ui, sans-serif; background: #020617; color: #f1f5f9; min-height: 100vh; }
+    .glass { background: rgba(15,23,42,.88); backdrop-filter: blur(20px); border: 1px solid rgba(148,163,184,.12); }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+  <div class="max-w-3xl mx-auto space-y-8">
+    <header class="flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <img src="/static/img/logo-mark.png" class="w-11 h-11 rounded-2xl" alt="" />
+        <div>
+          <div class="font-black text-lg">SecuCode <span class="text-cyan-400">Pro</span></div>
+          <div class="text-[10px] text-slate-500 tracking-widest uppercase">Bulk Threat Scanner</div>
+        </div>
+      </a>
+      <a href="/" class="text-sm text-slate-400 hover:text-cyan-400 font-bold">← الرئيسية</a>
+    </header>
+
+    <div class="glass rounded-3xl p-6 md:p-8 space-y-5">
+      <div>
+        <h1 class="text-2xl font-black mb-1">فحص جماعي مجاني</h1>
+        <p class="text-slate-400 text-sm">أدخل حتى <span class="text-cyan-400 font-bold">8 روابط</span> — سطر لكل رابط. فحص متوازي عبر نفس محرك الاستخبارات.</p>
+      </div>
+      <textarea id="urls" rows="8" dir="ltr" placeholder="https://example.com&#10;https://suspicious-site.net&#10;evil-domain.xyz"
+        class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 text-sm font-mono focus:border-cyan-500 outline-none"></textarea>
+      <button id="btn" onclick="runBulk()" class="w-full bg-gradient-to-l from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 transition">
+        <i data-lucide="layers" class="w-5 h-5"></i>
+        <span>بدء الفحص الجماعي</span>
+      </button>
+      <p id="err" class="hidden text-red-400 text-sm text-center font-semibold"></p>
+    </div>
+
+    <div id="summary" class="hidden grid grid-cols-3 gap-3"></div>
+    <div id="results" class="space-y-3"></div>
+  </div>
+
+  <script>
+    async function runBulk() {
+      const raw = document.getElementById('urls').value;
+      const btn = document.getElementById('btn');
+      const err = document.getElementById('err');
+      err.classList.add('hidden');
+      const urls = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+      if (!urls.length) {
+        err.textContent = 'أدخل رابطاً واحداً على الأقل';
+        err.classList.remove('hidden');
+        return;
+      }
+      btn.disabled = true;
+      btn.innerHTML = '<span class="animate-pulse">جاري فحص ' + Math.min(urls.length, 8) + ' روابط...</span>';
+      document.getElementById('results').innerHTML = '';
+      document.getElementById('summary').classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/bulk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ urls })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'فشل');
+
+        const s = data.summary || {};
+        document.getElementById('summary').innerHTML =
+          '<div class="glass rounded-2xl p-4 text-center"><div class="text-2xl font-black text-red-400">' + (s.critical||0) + '</div><div class="text-[10px] text-slate-500 font-bold">حرج</div></div>' +
+          '<div class="glass rounded-2xl p-4 text-center"><div class="text-2xl font-black text-amber-400">' + (s.suspicious||0) + '</div><div class="text-[10px] text-slate-500 font-bold">مشبوه</div></div>' +
+          '<div class="glass rounded-2xl p-4 text-center"><div class="text-2xl font-black text-emerald-400">' + (s.safe||0) + '</div><div class="text-[10px] text-slate-500 font-bold">آمن</div></div>';
+        document.getElementById('summary').classList.remove('hidden');
+
+        document.getElementById('results').innerHTML = (data.results || []).map(r => {
+          const sc = r.points || r.risk_score || 0;
+          const color = sc >= 75 ? 'text-red-400' : sc >= 45 ? 'text-amber-400' : 'text-emerald-400';
+          const rid = r.report_id ? '<a href="/r/' + r.report_id + '" class="text-cyan-400 text-[11px] font-mono hover:underline" dir="ltr">' + r.report_id + '</a>' : '';
+          return '<div class="glass rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">' +
+            '<div class="min-w-0"><div class="font-mono text-xs text-slate-300 truncate" dir="ltr">' + (r.domain || r.url || '—') + '</div>' +
+            '<div class="text-[11px] text-slate-500 mt-1">' + (r.risk_label || r.risk_level || '') + ' · ' + rid + '</div></div>' +
+            '<div class="font-black text-xl ' + color + '">' + sc + '</div></div>';
+        }).join('');
+      } catch (e) {
+        err.textContent = e.message || 'خطأ';
+        err.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="layers" class="w-5 h-5"></i><span>بدء الفحص الجماعي</span>';
+        lucide.createIcons();
+      }
+    }
+    lucide.createIcons();
+  </script>
+</body>
+</html>

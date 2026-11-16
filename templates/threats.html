@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إحصائيات التهديدات | SecuCode Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: 'Cairo', system-ui, sans-serif; background: #020617; color: #f1f5f9; min-height: 100vh; }
+    .glass { background: rgba(15,23,42,.88); border: 1px solid rgba(148,163,184,.12); backdrop-filter: blur(16px); }
+    .cyber-bg {
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(6,182,212,0.15), transparent),
+        radial-gradient(circle at 1px 1px, rgba(148,163,184,0.05) 1px, transparent 0);
+      background-size: 100% 100%, 28px 28px;
+    }
+  </style>
+</head>
+<body class="cyber-bg">
+  <nav class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-3">
+        <img src="/static/img/logo-mark.png" class="w-9 h-9 rounded-xl" alt="" />
+        <span class="font-black">SecuCode <span class="text-cyan-400">Pro</span></span>
+      </a>
+      <div class="flex gap-3 text-xs font-bold text-slate-400">
+        <a href="/bulk" class="hover:text-cyan-400">جماعي</a>
+        <a href="/report-url" class="hover:text-cyan-400">بلاغ</a>
+        <a href="/docs" class="hover:text-cyan-400">API</a>
+        <a href="/" class="hover:text-cyan-400">فحص</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 py-10 space-y-10">
+    <div class="text-center space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-[11px] font-bold">
+        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+        Live Threat Intelligence
+      </div>
+      <h1 class="text-3xl md:text-4xl font-black">لوحة إحصائيات التهديدات</h1>
+      <p class="text-slate-400 text-sm max-w-xl mx-auto">بيانات عامة من قواعد التهديد الحيّة وسجل الفحوصات المجتمعي — شفافية كاملة</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="cards">
+      <div class="glass rounded-2xl p-5 text-center">
+        <div id="cFeeds" class="text-3xl font-black text-cyan-400">—</div>
+        <div class="text-[10px] text-slate-500 font-bold mt-1 uppercase">نطاقات في القواعد</div>
+      </div>
+      <div class="glass rounded-2xl p-5 text-center">
+        <div id="cScans" class="text-3xl font-black text-blue-400">—</div>
+        <div class="text-[10px] text-slate-500 font-bold mt-1 uppercase">إجمالي الفحوصات</div>
+      </div>
+      <div class="glass rounded-2xl p-5 text-center">
+        <div id="cThreats" class="text-3xl font-black text-red-400">—</div>
+        <div class="text-[10px] text-slate-500 font-bold mt-1 uppercase">تهديدات مرصودة</div>
+      </div>
+      <div class="glass rounded-2xl p-5 text-center">
+        <div id="cPending" class="text-3xl font-black text-amber-400">—</div>
+        <div class="text-[10px] text-slate-500 font-bold mt-1 uppercase">بلاغات قيد المراجعة</div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-6">
+      <section class="glass rounded-2xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between">
+          <h2 class="font-black flex items-center gap-2 text-sm"><i data-lucide="siren" class="w-4 h-4 text-red-400"></i> أحدث التهديدات المكتشفة</h2>
+          <button onclick="load()" class="text-[11px] text-slate-500 hover:text-cyan-400 font-bold">تحديث</button>
+        </div>
+        <div id="threatList" class="divide-y divide-slate-800/80 max-h-[420px] overflow-y-auto">
+          <div class="p-8 text-center text-slate-500 text-sm">جاري التحميل...</div>
+        </div>
+      </section>
+
+      <section class="glass rounded-2xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-800">
+          <h2 class="font-black flex items-center gap-2 text-sm"><i data-lucide="database" class="w-4 h-4 text-cyan-400"></i> حالة القواعد الحيّة</h2>
+        </div>
+        <div class="p-5 space-y-4" id="feedInfo">
+          <div class="text-slate-500 text-sm">جاري التحميل...</div>
+        </div>
+        <div class="px-5 pb-5">
+          <a href="/report-url" class="block text-center bg-gradient-to-l from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold py-3 rounded-xl text-sm transition">
+            إبلاغ عن رابط مشبوه
+          </a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    function load() {
+      fetch('/api/threats/public').then(r => r.json()).then(d => {
+        if (!d.success) return;
+        const feeds = d.feeds || {};
+        document.getElementById('cFeeds').textContent = feeds.domains ? (feeds.domains > 1000 ? Math.round(feeds.domains/1000)+'K+' : feeds.domains) : '—';
+        document.getElementById('cScans').textContent = d.total_scans ?? '—';
+        document.getElementById('cThreats').textContent = d.threats_detected ?? '—';
+        document.getElementById('cPending').textContent = d.community_pending ?? '—';
+
+        const list = d.recent_threats || [];
+        document.getElementById('threatList').innerHTML = list.length ? list.map(t => {
+          const color = t.risk_level === 'critical' ? 'text-red-400' : 'text-amber-400';
+          const link = t.report_id ? '<a class="text-cyan-400 font-mono text-[10px]" href="/r/'+t.report_id+'" target="_blank">'+t.report_id+'</a>' : '';
+          return '<div class="px-5 py-3.5 flex justify-between gap-3 items-center hover:bg-slate-900/50">' +
+            '<div><div class="font-mono text-xs text-slate-300" dir="ltr">'+(t.domain||'—')+'</div>' +
+            '<div class="text-[11px] text-slate-500 mt-0.5">'+(t.risk_label||t.risk_level)+' · '+link+'</div></div>' +
+            '<div class="font-black '+color+'">'+(t.risk_score??'—')+'</div></div>';
+        }).join('') : '<div class="p-8 text-center text-slate-500 text-sm">لا توجد تهديدات حديثة في السجل بعد</div>';
+
+        const age = feeds.age_sec != null ? Math.round(feeds.age_sec/60) + ' دقيقة' : '—';
+        document.getElementById('feedInfo').innerHTML =
+          '<div class="flex justify-between text-sm"><span class="text-slate-500">نطاقات محملة</span><span class="font-bold text-cyan-400">'+(feeds.domains||0).toLocaleString()+'</span></div>' +
+          '<div class="flex justify-between text-sm"><span class="text-slate-500">روابط محملة</span><span class="font-bold">'+(feeds.urls||0).toLocaleString()+'</span></div>' +
+          '<div class="flex justify-between text-sm"><span class="text-slate-500">آخر تحديث</span><span class="font-bold">منذ '+age+'</span></div>' +
+          '<div class="flex justify-between text-sm"><span class="text-slate-500">TTL التحديث</span><span class="font-bold">'+(feeds.ttl_sec?feeds.ttl_sec/60:30)+' دقيقة</span></div>' +
+          '<div class="pt-2 text-[11px] text-slate-600 leading-relaxed">المصادر: OpenPhish · Phishing Army · URLhaus · VirusTotal · Google Safe Browsing · AbuseIPDB</div>';
+        lucide.createIcons();
+      }).catch(() => {
+        document.getElementById('threatList').innerHTML = '<div class="p-8 text-center text-red-400 text-sm">تعذر التحميل</div>';
+      });
+    }
+    load();
+    setInterval(load, 60000);
+    lucide.createIcons();
+  </script>
+</body>
+</html>
