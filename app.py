@@ -1,7 +1,7 @@
 """
 SecuCode Pro v2.5 - Professional Threat Intelligence Platform
 Multi-Source URL Analysis Engine + History + Admin
-Developers: Tarek Mostafa · Mazen Amro
+Developers: Tarek Mostafa · Mazen Amr
 """
 
 import os
@@ -142,10 +142,19 @@ def analyze():
 
 @app.route("/api/health")
 def health():
+    stats = {}
+    try:
+        stats = storage.get_stats()
+    except Exception as e:
+        stats = {"error": str(e)[:80]}
     return jsonify({
         "status": "ok",
-        "engine": "SecuCode-Pro-MultiSource-v2.5",
+        "service": "SecuCode Pro",
         "version": "2.5.0",
+        "database": stats.get("backend", "unknown"),
+        "total_scans": stats.get("total_scans"),
+        "threats_detected": stats.get("threats_detected"),
+        "safe_count": stats.get("safe_count"),
     })
 
 
