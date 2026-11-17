@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SecuCode Pro | Elite Cyber Threat Intelligence</title>
+  <meta name="description" content="محرك استخبارات تهديدات احترافي — فحص متعدد المصادر وتقارير رقمية موثقة" />
+  <meta name="theme-color" content="#030712" />
+  <link rel="manifest" href="/static/manifest.json" />
+  <link rel="icon" href="/static/img/logo-mark.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Cairo','system-ui','sans-serif']}}}}</script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    body { font-family: 'Cairo', system-ui, sans-serif; background: #030712; color: #e2e8f0; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    .page-bg {
+      background:
+        radial-gradient(ellipse 90% 50% at 50% -15%, rgba(34,211,238,0.14), transparent 55%),
+        radial-gradient(ellipse 45% 35% at 100% 0%, rgba(59,130,246,0.10), transparent 50%),
+        #030712;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+
+    .nav-bar {
+      background: rgba(3, 7, 18, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    }
+    .logo-glow {
+      box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.25), 0 0 18px rgba(34, 211, 238, 0.18);
+    }
+    .menu-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 0.85rem; border-radius: 0.85rem;
+      font-size: 0.75rem; font-weight: 800; color: #e2e8f0;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(71, 85, 105, 0.8);
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .menu-btn:hover, .menu-btn.open {
+      border-color: rgba(34, 211, 238, 0.45);
+      color: #22d3ee;
+      background: rgba(34, 211, 238, 0.08);
+    }
+    .menu-drop {
+      display: none;
+      position: absolute;
+      left: 0; top: calc(100% + 8px);
+      min-width: 200px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(51, 65, 85, 0.95);
+      border-radius: 1rem;
+      padding: 0.4rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      z-index: 60;
+    }
+    .menu-drop.open { display: block; }
+    .menu-drop a {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.7rem 0.85rem; border-radius: 0.75rem;
+      font-size: 0.8rem; font-weight: 700; color: #cbd5e1;
+      text-decoration: none; transition: background 0.15s, color 0.15s;
+    }
+    .menu-drop a:hover { background: rgba(34, 211, 238, 0.1); color: #22d3ee; }
+    .menu-drop a span.icon { opacity: 0.7; font-size: 0.95rem; width: 1.25rem; text-align: center; }
+
+    .hero-title { font-size: clamp(1.85rem, 5.2vw, 3.25rem); font-weight: 900; line-height: 1.18; letter-spacing: -0.02em; }
+    .hero-gradient {
+      background: linear-gradient(105deg, #f8fafc 10%, #67e8f9 40%, #60a5fa 70%, #a78bfa 100%);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .panel {
+      background: rgba(15,23,42,0.78); border: 1px solid rgba(148,163,184,0.12);
+      box-shadow: 0 24px 48px -20px rgba(0,0,0,0.55); border-radius: 1.5rem;
+    }
+    .panel-top-line { height: 1px; background: linear-gradient(90deg, transparent, rgba(34,211,238,0.55), rgba(59,130,246,0.4), transparent); }
+    .field {
+      width: 100%; background: rgba(2,6,23,0.9); border: 1px solid rgba(51,65,85,0.95);
+      border-radius: 1rem; padding: 0.95rem 1.15rem 0.95rem 3rem; font-size: 0.95rem; font-weight: 600; color: #f1f5f9;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field:focus { outline: none; border-color: rgba(34,211,238,0.55); box-shadow: 0 0 0 3px rgba(34,211,238,0.12); }
+    .field::placeholder { color: #64748b; font-weight: 500; }
+    .btn-primary {
+      background: linear-gradient(135deg, #0891b2, #2563eb 55%, #4f46e5); color: #fff; font-weight: 900;
+      border-radius: 1rem; padding: 0.95rem 1.75rem; box-shadow: 0 10px 28px rgba(37,99,235,0.35);
+      transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3.25rem;
+    }
+    .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 14px 32px rgba(34,211,238,0.3); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+    .stat-pill { flex: 1; text-align: center; padding: 0.85rem 0.5rem; border-radius: 1rem; background: rgba(2,6,23,0.45); border: 1px solid rgba(51,65,85,0.6); }
+    .stat-num { font-size: clamp(1.25rem, 3vw, 1.65rem); font-weight: 900; font-variant-numeric: tabular-nums; }
+    .stat-label { font-size: 0.65rem; font-weight: 700; color: #64748b; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 0.25rem; }
+    .chip { display: inline-flex; font-size: 0.65rem; font-weight: 800; padding: 0.3rem 0.7rem; border-radius: 999px; background: rgba(15,23,42,0.85); border: 1px solid rgba(71,85,105,0.7); color: #94a3b8; }
+    .chip-accent { border-color: rgba(34,211,238,0.35); color: #22d3ee; background: rgba(34,211,238,0.08); }
+    .feature { background: rgba(15,23,42,0.55); border: 1px solid rgba(148,163,184,0.1); border-radius: 1.25rem; padding: 1.35rem 1rem; text-align: center; transition: border-color 0.25s, transform 0.25s; }
+    @media (hover:hover) { .feature:hover { border-color: rgba(34,211,238,0.28); transform: translateY(-3px); } }
+    .feature-icon { width: 2.75rem; height: 2.75rem; border-radius: 0.9rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.85rem; }
+    .power-strip { border-radius: 1.5rem; border: 1px solid rgba(34,211,238,0.15); background: linear-gradient(120deg, rgba(15,23,42,0.9), rgba(8,15,40,0.75), rgba(15,23,42,0.9)); padding: 1.75rem 1.25rem; }
+    .live-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #67e8f9; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.28); }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #22d3ee; box-shadow: 0 0 0 3px rgba(34,211,238,0.2); }
+    .source-card { transition: border-color 0.2s, transform 0.2s; }
+    .source-card:hover { border-color: rgba(34,211,238,0.35); transform: translateY(-2px); }
+    .score-ring { transition: stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1); }
+    .modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(3,7,18,0.92); backdrop-filter: blur(10px); align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+    .modal.active { display: flex; }
+    .tab-active { color: #22d3ee; background: rgba(34,211,238,0.1); border-color: rgba(34,211,238,0.3); }
+    .history-row:hover { background: rgba(30,41,59,0.65); }
+    .seal { width: 132px; height: 132px; border-radius: 50%; border: 3px solid currentColor; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; font-weight: 900; box-shadow: 0 0 0 6px rgba(0,0,0,0.25), 0 0 24px currentColor; }
+    .seal::before { content: ''; position: absolute; inset: 8px; border-radius: 50%; border: 1.5px dashed currentColor; opacity: 0.5; }
+    .seal-star { position: absolute; top: -6px; left: 50%; transform: translateX(-50%); font-size: 13px; }
+    .report-paper { background: linear-gradient(180deg, #0f172a, #0b1220); border: 1px solid rgba(148,163,184,0.14); }
+    @media print {
+      body * { visibility: hidden; }
+      #reportModal, #reportModal * { visibility: visible; }
+      #reportModal { position: absolute; inset: 0; background: #fff; color: #000; }
+      .no-print { display: none !important; }
+    }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+  </style>
+</head>
+<body class="page-bg">
+  <nav class="sticky top-0 z-50 nav-bar">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <a href="/" class="flex items-center gap-3 min-w-0">
+        <img src="/static/img/logo-mark.png" alt="SecuCode Pro" width="40" height="40"
+          class="w-10 h-10 rounded-xl logo-glow flex-shrink-0" />
+        <div class="min-w-0">
+          <div class="font-black text-[15px] leading-none">SecuCode <span class="text-cyan-400">Pro</span></div>
+          <div class="text-[9px] text-slate-500 font-bold tracking-[0.16em] uppercase mt-1 hidden sm:block">Elite Cyber Security</div>
+        </div>
+      </a>
+      <div class="relative" id="navMenuWrap">
+        <button type="button" class="menu-btn" id="navMenuBtn" aria-expanded="false" aria-haspopup="true">
+          <i data-lucide="menu" class="w-4 h-4"></i>
+          <span>القائمة</span>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-70"></i>
+        </button>
+        <div class="menu-drop" id="navMenuDrop" role="menu">
+          <a href="/" role="menuitem"><span class="icon">⌂</span> الصفحة الرئيسية</a>
+          <a href="/bulk" role="menuitem"><span class="icon">▦</span> فحص جماعي</a>
+          <a href="/threats" role="menuitem"><span class="icon">◉</span> إحصائيات التهديدات</a>
+          <a href="/report-url" role="menuitem"><span class="icon">⚑</span> إبلاغ عن رابط</a>
+          <a href="/docs" role="menuitem"><span class="icon">{ }</span> توثيق API</a>
+          <a href="/admin" role="menuitem"><span class="icon">⚙</span> لوحة الإدارة</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12 lg:py-14">
+    <section id="panel-scan" class="max-w-3xl mx-auto">
+      <div class="text-center mb-8 sm:mb-10 space-y-4">
+        <div class="live-badge"><span class="live-dot"></span> Live Engine v2.5</div>
+        <h1 class="hero-title">
+          <span class="hero-gradient">اكتشف التهديد</span>
+          <span class="block text-white mt-1.5">قبل ما يوصلك</span>
+        </h1>
+        <p class="text-slate-400 text-sm sm:text-[15px] leading-relaxed max-w-xl mx-auto">
+          فحص متعدد المصادر · قواعد تهديد حيّة · تقرير رقمي موثّق · API مجاني
+        </p>
+        <div class="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+          <span class="chip">VirusTotal</span>
+          <span class="chip">Safe Browsing</span>
+          <span class="chip">URLhaus</span>
+          <span class="chip">AbuseIPDB</span>
+          <span class="chip chip-accent">SSL · WHOIS</span>
+        </div>
+      </div>
+
+      <div class="panel overflow-hidden">
+        <div class="panel-top-line"></div>
+        <div class="p-5 sm:p-7 md:p-8 space-y-5">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <div class="relative flex-1">
+              <input id="urlInput" type="url" dir="ltr" class="field" placeholder="https://example.com" autocomplete="off" />
+              <button type="button" onclick="openScanner()" title="مسح QR" class="absolute left-2.5 top-1/2 -translate-y-1/2 p-2 rounded-lg text-slate-500 hover:text-cyan-400 hover:bg-slate-800/60 transition">
+                <i data-lucide="qr-code" class="w-5 h-5"></i>
+              </button>
+            </div>
+            <button id="scanBtn" type="button" onclick="runAnalysis()" class="btn-primary w-full sm:w-auto sm:min-w-[9.5rem]">
+              <i data-lucide="radar" class="w-5 h-5"></i><span>تحليل الآن</span>
+            </button>
+          </div>
+          <p id="errorMsg" class="hidden text-red-400 text-sm text-center font-semibold"></p>
+          <div class="grid grid-cols-3 gap-2 sm:gap-3 pt-4 border-t border-slate-800/80">
+            <div class="stat-pill"><div id="statTotal" class="stat-num text-cyan-400">—</div><div class="stat-label">فحوصات الموقع</div></div>
+            <div class="stat-pill"><div id="statThreats" class="stat-num text-red-400">—</div><div class="stat-label">تهديدات مكتشفة</div></div>
+            <div class="stat-pill"><div id="statSafe" class="stat-num text-emerald-400">—</div><div class="stat-label">نتائج آمنة</div></div>
+          </div>
+        </div>
+      </div>
+      <div id="resultsArea" class="hidden mt-8 sm:mt-10"></div>
+    </section>
+
+    <section class="mt-12 sm:mt-14 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-5xl mx-auto">
+      <div class="feature"><div class="feature-icon bg-cyan-500/12 text-cyan-400"><i data-lucide="layers" class="w-5 h-5"></i></div><div class="text-sm font-extrabold">مصادر + Feeds</div><div class="text-[11px] text-slate-500 mt-1">قواعد محدّثة باستمرار</div></div>
+      <div class="feature"><div class="feature-icon bg-emerald-500/12 text-emerald-400"><i data-lucide="file-badge" class="w-5 h-5"></i></div><div class="text-sm font-extrabold">تقرير رقمي</div><div class="text-[11px] text-slate-500 mt-1">ختم ورقم مرجعي</div></div>
+      <div class="feature"><div class="feature-icon bg-amber-500/12 text-amber-400"><i data-lucide="shield" class="w-5 h-5"></i></div><div class="text-sm font-extrabold">قوائم ذكية</div><div class="text-[11px] text-slate-500 mt-1">أبيض / أسود</div></div>
+      <div class="feature"><div class="feature-icon bg-violet-500/12 text-violet-400"><i data-lucide="database" class="w-5 h-5"></i></div><div class="text-sm font-extrabold">سجل موثق</div><div class="text-[11px] text-slate-500 mt-1">قاعدة بيانات حقيقية</div></div>
+    </section>
+
+    <section class="mt-10 sm:mt-12 max-w-5xl mx-auto power-strip">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-4 text-center sm:text-right">
+        <div><div class="text-2xl sm:text-3xl font-black text-cyan-400">+142K</div><div class="text-sm font-bold text-slate-300 mt-1">نطاق في القواعد الحيّة</div><div class="text-[11px] text-slate-500 mt-0.5">OpenPhish · Phishing Army</div></div>
+        <div><div class="text-2xl sm:text-3xl font-black text-blue-400">7+</div><div class="text-sm font-bold text-slate-300 mt-1">مصادر تحليل متوازية</div><div class="text-[11px] text-slate-500 mt-0.5">VT · GSB · SSL · Behavioral</div></div>
+        <div><div class="text-2xl sm:text-3xl font-black text-violet-400">100%</div><div class="text-sm font-bold text-slate-300 mt-1">مجاني للمستخدم والمطوّر</div><div class="text-[11px] text-slate-500 mt-0.5">API · Bulk · Badge · Reports</div></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/80 mt-20 bg-[#030712]/80">
+    <div class="max-w-6xl mx-auto px-4 py-9 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="text-center md:text-right">
+        <div class="text-sm font-bold text-slate-300">SecuCode Pro © 2026</div>
+        <div class="text-xs text-slate-500 mt-1">مطور بواسطة <span class="text-blue-400 font-semibold">طارق مصطفى</span> · <span class="text-blue-400 font-semibold">مازن عمرو</span></div>
+      </div>
+      <div class="flex items-center gap-5 text-[11px] text-slate-600 font-medium">
+        <span class="flex items-center gap-1.5"><i data-lucide="cpu" class="w-3.5 h-3.5"></i> Multi-Source Engine</span>
+        <span class="flex items-center gap-1.5"><i data-lucide="badge-check" class="w-3.5 h-3.5"></i> Digital Reports</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- QR Modal -->
+  <div id="scannerModal" class="modal no-print">
+    <div class="glass-hero rounded-3xl p-6 max-w-sm w-full relative animate-scale-in">
+      <button onclick="closeScanner()" class="absolute top-4 left-4 p-2 rounded-full hover:bg-slate-800 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <h3 class="text-lg font-black text-center mb-4">مسح رمز QR</h3>
+      <div id="reader" class="rounded-2xl overflow-hidden bg-black"></div>
+    </div>
+  </div>
+
+  
+  <!-- ═══════════════════════════════════════════════════
+       PROFESSIONAL FORENSIC REPORT (Premium)
+  ═══════════════════════════════════════════════════ -->
+  <div id="reportModal" class="modal">
+    <div class="report-paper rounded-[1.75rem] max-w-[720px] w-full my-6 shadow-2xl animate-scale-in overflow-hidden relative">
+      <!-- Security stripe -->
+      <div class="h-2 bg-gradient-to-r from-blue-700 via-blue-500 via-indigo-500 to-violet-600"></div>
+
+      <div class="p-7 md:p-11" id="reportContent">
+        <!-- Brand header -->
+        <div class="flex items-start justify-between gap-5 mb-8">
+          <div class="flex items-center gap-4">
+            <img src="/static/img/logo.png" alt="SecuCode Pro" class="w-16 h-16 rounded-2xl shadow-xl ring-1 ring-white/10" />
+            <div>
+              <div class="font-black text-2xl tracking-tight leading-none">SecuCode <span class="text-blue-400">Pro</span></div>
+              <div class="text-[11px] text-slate-500 font-bold tracking-[0.2em] uppercase mt-1.5">Official Forensic Report</div>
+              <div class="text-[10px] text-slate-600 mt-0.5">Threat Intelligence Certificate</div>
+            </div>
+          </div>
+          <div class="text-left bg-slate-900/70 border border-slate-700/80 rounded-xl px-4 py-3" dir="ltr">
+            <div class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Report ID</div>
+            <div id="repId" class="font-mono text-sm font-black text-blue-400 tracking-wider mt-0.5">—</div>
+            <div class="text-[9px] text-slate-600 mt-1">CLASSIFIED · DIGITAL</div>
+          </div>
+        </div>
+
+        <!-- Hero status row -->
+        <div class="relative rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-900/90 to-slate-950/90 p-6 md:p-8 mb-8 overflow-hidden">
+          <div class="absolute inset-0 opacity-[0.04]" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 18px 18px;"></div>
+          <div class="relative flex flex-col sm:flex-row items-center gap-8">
+            <div id="repSeal" class="seal text-emerald-400 shrink-0">
+              <span class="seal-star">✦</span>
+              <div class="text-[9px] uppercase opacity-80 tracking-widest">VERIFIED</div>
+              <div id="repSealLabel" class="text-base leading-none mt-1.5 tracking-wide">SAFE</div>
+              <div class="text-[8px] mt-1.5 opacity-60 tracking-widest">SECUCODE</div>
+            </div>
+            <div class="flex-1 text-center sm:text-right space-y-2.5">
+              <div id="repLabel" class="text-3xl md:text-4xl font-black text-emerald-400 tracking-tight">Safe</div>
+              <div class="flex items-center justify-center sm:justify-end gap-3">
+                <div class="h-2 w-32 md:w-44 bg-slate-800 rounded-full overflow-hidden">
+                  <div id="repBar" class="h-full rounded-full bg-emerald-500 transition-all duration-700" style="width:0%"></div>
+                </div>
+                <div class="text-sm text-slate-300"><span id="repScore" class="font-black text-white text-xl">0</span><span class="text-slate-500">/100</span></div>
+              </div>
+              <div class="text-xs font-mono text-slate-500 tracking-wide" dir="ltr" id="repDomain">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meta grid -->
+        <div class="grid grid-cols-2 gap-3.5 mb-8">
+          <div class="bg-slate-900/70 rounded-xl p-4 border border-slate-800/90">
+            <div class="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5">Target Domain</div>
+            <div id="repDomain2" class="font-mono text-slate-200 text-xs break-all" dir="ltr">—</div>
+          </div>
+          <div class="bg-slate-900/70 rounded-xl p-4 border border-slate-800/90">
+            <div class="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5">Server IP</div>
+            <div id="repIp" class="font-mono text-slate-200 text-xs" dir="ltr">—</div>
+          </div>
+          <div class="bg-slate-900/70 rounded-xl p-4 border border-slate-800/90">
+            <div class="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5">Scan Timestamp</div>
+            <div id="repTime" class="text-slate-200 text-xs">—</div>
+          </div>
+          <div class="bg-slate-900/70 rounded-xl p-4 border border-slate-800/90">
+            <div class="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-1.5">Active Sources</div>
+            <div id="repSources" class="text-slate-200 text-xs font-bold">—</div>
+          </div>
+        </div>
+
+        <!-- Executive summary -->
+        <div class="mb-8">
+          <div class="text-[10px] text-blue-400 font-black uppercase tracking-[0.18em] mb-2.5 flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span> Executive Summary
+          </div>
+          <p id="repSummary" class="text-sm text-slate-300 leading-relaxed bg-slate-900/50 rounded-xl p-5 border border-slate-800/80">—</p>
+        </div>
+
+        <!-- Cryptographic seal block -->
+        <div class="border border-dashed border-slate-600 rounded-2xl p-5 bg-slate-900/50 relative overflow-hidden">
+          <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 via-indigo-500 to-violet-600"></div>
+          <div class="flex items-center justify-between gap-5 flex-wrap pl-4">
+            <div class="flex-1 min-w-[200px]">
+              <div class="text-[10px] text-blue-400 font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                <i data-lucide="badge-check" class="w-3.5 h-3.5"></i> Digital Cryptographic Seal
+              </div>
+              <div class="text-xs text-slate-300 leading-relaxed">
+                هذا التقرير موثّق رقمياً بواسطة محرك <span class="text-blue-400 font-semibold">SecuCode Pro Forensic Engine</span>.
+                أي تعديل على المحتوى يكسر التوقيع الرقمي المرتبط برقم التقرير.
+              </div>
+              <div class="text-[11px] text-slate-500 mt-3 font-mono tracking-wide" dir="ltr" id="repHash">—</div>
+            </div>
+            <div class="text-left border border-slate-700 rounded-xl px-5 py-4 bg-slate-950/70 shrink-0" dir="ltr">
+              <div class="flex items-center gap-2.5 mb-2">
+                <img src="/static/img/logo-mark.png" alt="" class="w-8 h-8 rounded-lg" />
+                <div class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Issued & Signed</div>
+              </div>
+              <div class="text-xs font-black text-slate-100 leading-snug">Tarek Mostafa</div>
+              <div class="text-xs font-black text-slate-100 leading-snug">Mazen Amro</div>
+              <div class="text-[10px] text-blue-400 font-semibold mt-1.5">SecuCode Pro · Forensic Unit</div>
+              <div class="text-[9px] text-slate-600 mt-0.5">© 2026 · All Rights Reserved</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer authenticity line -->
+        <div class="mt-6 pt-5 border-t border-slate-800/80 flex items-center justify-between gap-3 text-[10px] text-slate-600">
+          <div class="flex items-center gap-2">
+            <img src="/static/img/logo-mark.png" class="w-4 h-4 rounded opacity-70" alt="" />
+            <span>secucode.pro · Multi-Source Threat Intelligence</span>
+          </div>
+          <span class="font-mono tracking-wider" id="repEngine">Engine v2.3</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="px-7 md:px-11 pb-8 flex flex-wrap gap-3 no-print">
+        <button onclick="window.print()" class="flex-1 min-w-[140px] bg-gradient-to-l from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 transition shadow-lg shadow-blue-900/30">
+          <i data-lucide="printer" class="w-4 h-4"></i> طباعة / حفظ PDF
+        </button>
+        <button onclick="closeReport()" class="flex-1 min-w-[120px] bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-3.5 rounded-xl text-sm transition">
+          إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+    let html5QrCode = null;
+    let lastResult = null;
+
+    function formatNum(n) {
+      n = Number(n) || 0;
+      return n >= 1000 ? (Math.round(n/100)/10) + 'K' : String(n);
+    }
+    function refreshStats() {
+      fetch('/api/stats').then(r => r.json()).then(d => {
+        if (!d || d.success === false) return;
+        const t = document.getElementById('statTotal');
+        const th = document.getElementById('statThreats');
+        const s = document.getElementById('statSafe');
+        if (t) t.textContent = formatNum(d.total_scans);
+        if (th) th.textContent = formatNum(d.threats_detected);
+        if (s) s.textContent = formatNum(d.safe_count);
+      }).catch(() => {});
+    }
+    refreshStats();
+    setInterval(refreshStats, 30000);
+
+    function switchTab(name) {
+      document.getElementById('panel-scan').classList.toggle('hidden', name !== 'scan');
+      document.getElementById('panel-history').classList.toggle('hidden', name !== 'history');
+      document.getElementById('tab-scan').classList.toggle('tab-active', name === 'scan');
+      document.getElementById('tab-history').classList.toggle('tab-active', name === 'history');
+      document.getElementById('tab-scan').classList.toggle('text-slate-400', name !== 'scan');
+      document.getElementById('tab-history').classList.toggle('text-slate-400', name !== 'history');
+      if (name === 'history') loadHistory();
+      
+    (function(){
+      const btn = document.getElementById('navMenuBtn');
+      const drop = document.getElementById('navMenuDrop');
+      if (!btn || !drop) return;
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        const open = drop.classList.toggle('open');
+        btn.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      document.addEventListener('click', function(){
+        drop.classList.remove('open');
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+      drop.addEventListener('click', function(e){ e.stopPropagation(); });
+    })();
+
+    lucide.createIcons();
+    }
+
+    async function runAnalysis() {
+      const input = document.getElementById('urlInput');
+      const btn = document.getElementById('scanBtn');
+      const err = document.getElementById('errorMsg');
+      const area = document.getElementById('resultsArea');
+      const url = input.value.trim();
+      err.classList.add('hidden');
+      if (!url) {
+        err.textContent = 'الرجاء إدخال رابط للفحص';
+        err.classList.remove('hidden');
+        return;
+      }
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i><span>جاري التحليل العميق...</span>';
+      lucide.createIcons();
+      area.classList.add('hidden');
+      area.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ link: url })
+        });
+        const data = await res.json();
+        if (!data.success && data.error) throw new Error(data.error);
+        lastResult = data;
+        refreshStats();
+        renderResults(data, url);
+      } catch (e) {
+        err.textContent = 'فشل الفحص: ' + (e.message || 'خطأ غير متوقع');
+        err.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="radar" class="w-5 h-5"></i><span>تحليل الآن</span>';
+        lucide.createIcons();
+      }
+    }
+
+    function scoreColor(score) {
+      if (score >= 75) return { text: 'text-red-400', ring: '#ef4444', seal: 'text-red-400', label: 'CRITICAL', ar: 'خطير جداً' };
+      if (score >= 45) return { text: 'text-amber-400', ring: '#f59e0b', seal: 'text-amber-400', label: 'SUSPICIOUS', ar: 'مشبوه' };
+      if (score >= 20) return { text: 'text-yellow-400', ring: '#eab308', seal: 'text-yellow-400', label: 'LOW RISK', ar: 'منخفض' };
+      return { text: 'text-emerald-400', ring: '#10b981', seal: 'text-emerald-400', label: 'SAFE', ar: 'آمن' };
+    }
+
+    function renderResults(d, url) {
+      const area = document.getElementById('resultsArea');
+      const score = typeof d.points === 'number' ? d.points : (typeof d.risk_score === 'number' ? d.risk_score : 0);
+      const c = scoreColor(score);
+      const label = d.risk_label || c.ar;
+      const sources = d.sources || [];
+      const radius = 56;
+      const circumference = 2 * Math.PI * radius;
+      const offset = circumference - (Math.min(100, score) / 100) * circumference;
+      const reportId = d.report_id || '—';
+
+      let sourcesHtml = sources.map(s => {
+        const sc = s.score || 0;
+        const scC = scoreColor(sc);
+        let detail = '—';
+        if (s.details) {
+          if (s.details.malicious !== undefined) detail = s.details.malicious + ' خبيث · ' + (s.details.suspicious || 0) + ' مشبوه';
+          else if (s.details.threat_types) detail = s.details.threat_types.join(', ');
+          else if (s.details.threat) detail = s.details.threat + (s.details.tags ? ' · ' + s.details.tags.slice(0, 3).join(', ') : '');
+          else if (s.details.abuse_confidence !== undefined) detail = 'ثقة: ' + s.details.abuse_confidence + '% · تقارير: ' + (s.details.total_reports || 0);
+          else if (s.details.findings && s.details.findings.length) detail = s.details.findings.slice(0, 2).join(' · ');
+          else if (s.details.age_days !== undefined) detail = 'عمر: ' + s.details.age_days + ' يوم';
+          else if (s.details.reason) detail = s.details.reason;
+          else if (s.error) detail = s.error;
+        }
+        const statusMap = { ok: 'تم', clean: 'نظيف', trusted: 'موثوق', threat_found: 'تهديد', unavailable: 'غير متاح', error: 'خطأ', timeout: 'مهلة' };
+        return '<div class="source-card glass rounded-2xl p-4 border border-slate-700/50">' +
+          '<div class="flex items-start justify-between gap-2 mb-2">' +
+          '<h4 class="font-bold text-sm text-slate-200">' + (s.source || 'Source') + '</h4>' +
+          '<span class="text-[10px] font-black px-2 py-0.5 rounded-lg ' + scC.text + ' bg-slate-800/80">' + sc + '%</span></div>' +
+          '<div class="text-[11px] text-slate-500 mb-1.5">' + (statusMap[s.status] || s.status || '—') + '</div>' +
+          '<p class="text-xs text-slate-400 leading-relaxed line-clamp-2">' + detail + '</p></div>';
+      }).join('');
+
+      area.innerHTML =
+        '<div class="glass-hero rounded-[1.75rem] overflow-hidden border border-slate-700/40 shadow-2xl">' +
+        '<div class="grid lg:grid-cols-5 gap-0">' +
+        '<div class="lg:col-span-2 p-8 md:p-10 flex flex-col items-center justify-center border-b lg:border-b-0 lg:border-l border-slate-800/80 bg-slate-900/50">' +
+        '<div class="relative w-40 h-40 mb-6">' +
+        '<svg class="w-full h-full -rotate-90" viewBox="0 0 128 128">' +
+        '<circle cx="64" cy="64" r="' + radius + '" fill="none" stroke="#1e293b" stroke-width="11" />' +
+        '<circle class="score-ring" cx="64" cy="64" r="' + radius + '" fill="none" stroke="' + c.ring + '" stroke-width="11" stroke-linecap="round" stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '" />' +
+        '</svg>' +
+        '<div class="absolute inset-0 flex flex-col items-center justify-center">' +
+        '<span class="text-4xl font-black ' + c.text + '">' + score + '</span>' +
+        '<span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">/ 100</span></div></div>' +
+        '<div class="text-center space-y-1.5">' +
+        '<div class="text-2xl font-black ' + c.text + '">' + label + '</div>' +
+        '<div class="text-xs text-slate-500 font-medium tracking-wide">' + (d.violation_key || '') + '</div>' +
+        '<div class="text-[11px] font-mono text-slate-600 mt-2" dir="ltr">' + reportId + '</div></div>' +
+        '<div class="mt-7 w-full space-y-2.5 text-xs text-slate-400">' +
+        '<div class="flex justify-between gap-4"><span>النطاق</span><span dir="ltr" class="font-mono text-slate-300 truncate max-w-[160px]">' + (d.domain || '—') + '</span></div>' +
+        '<div class="flex justify-between"><span>IP</span><span dir="ltr" class="font-mono text-slate-300">' + (d.ip || '—') + '</span></div>' +
+        '<div class="flex justify-between"><span>المصادر</span><span class="font-bold text-slate-300">' + (d.available_sources || sources.length) + '</span></div></div>' +
+        '<button onclick="openReport()" class="mt-8 w-full bg-gradient-to-l from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl text-sm flex items-center justify-center gap-2 transition shadow-lg shadow-blue-900/30">' +
+        '<i data-lucide="file-badge" class="w-4 h-4"></i> عرض التقرير الرسمي</button>' +
+        (reportId && reportId !== '—' ? '<a href="/r/' + reportId + '" target="_blank" class="mt-2 w-full block text-center text-xs font-bold text-cyan-400 hover:text-cyan-300 py-2">رابط مشاركة عام · ' + reportId + '</a>' : '') +
+        '</div>' +
+        '<div class="lg:col-span-3 p-6 md:p-8 space-y-6">' +
+        '<div><div class="text-[11px] font-black text-blue-400 uppercase tracking-widest mb-2 flex items-center gap-1.5"><i data-lucide="info" class="w-3.5 h-3.5"></i> الملخص</div>' +
+        '<p class="text-sm text-slate-300 leading-relaxed">' + (d.summary || '—') + '</p></div>' +
+        '<div class="relative rounded-2xl overflow-hidden h-52 bg-slate-900 border border-slate-800">' +
+        '<img src="' + (d.screenshot || 'https://s0.wp.com/mshots/v1/' + encodeURIComponent(url) + '?w=900&h=520') + '" class="w-full h-full object-cover object-top opacity-90" onerror="this.style.display=\'none\'" />' +
+        '<div class="absolute bottom-3 left-3 text-[9px] font-black tracking-widest bg-black/75 px-2.5 py-1 rounded-lg uppercase">SECUCODE PRO · FORENSIC</div></div>' +
+        '<div><div class="text-[11px] font-black text-blue-400 uppercase tracking-widest mb-3 flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5"></i> نتائج المصادر</div>' +
+        '<div class="grid sm:grid-cols-2 gap-3">' + (sourcesHtml || '<p class="text-slate-500 text-sm col-span-2">لا توجد بيانات</p>') + '</div></div>' +
+        '</div></div></div>';
+      area.classList.remove('hidden');
+      lucide.createIcons();
+      area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function openReport() {
+      if (!lastResult) return;
+      const d = lastResult;
+      const score = typeof d.points === 'number' ? d.points : (typeof d.risk_score === 'number' ? d.risk_score : 0);
+      const c = scoreColor(score);
+      const label = d.risk_label || c.ar;
+      const reportId = d.report_id || 'N/A';
+
+      document.getElementById('repId').textContent = reportId;
+      document.getElementById('repScore').textContent = score;
+      document.getElementById('repLabel').textContent = label;
+      document.getElementById('repLabel').className = 'text-2xl md:text-3xl font-black ' + c.text;
+      document.getElementById('repDomain').textContent = d.domain || d.url || '—';
+      document.getElementById('repDomain2').textContent = d.domain || d.url || '—';
+      document.getElementById('repIp').textContent = d.ip || '—';
+      document.getElementById('repSources').textContent = (d.available_sources || (d.sources || []).length) + ' مصادر نشطة';
+      document.getElementById('repSummary').textContent = d.summary || '—';
+      document.getElementById('repTime').textContent = d.timestamp
+        ? new Date(d.timestamp).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'medium' })
+        : new Date().toLocaleString('ar-EG');
+      document.getElementById('repHash').textContent = 'SHA-256 · ' + reportId + ' · ' + (d.engine || 'SecuCode-Pro-v2.3');
+      const bar = document.getElementById('repBar');
+      if (bar) { bar.style.width = Math.min(100, score) + '%'; bar.className = 'h-full rounded-full transition-all duration-700 ' + (score >= 75 ? 'bg-red-500' : score >= 45 ? 'bg-amber-500' : score >= 20 ? 'bg-yellow-500' : 'bg-emerald-500'); }
+      const eng = document.getElementById('repEngine');
+      if (eng) eng.textContent = d.engine || 'Engine v2.3';
+
+      const seal = document.getElementById('repSeal');
+      seal.className = 'seal ' + c.seal + ' shrink-0';
+      document.getElementById('repSealLabel').textContent = c.label;
+
+      document.getElementById('reportModal').classList.add('active');
+      lucide.createIcons();
+    }
+
+    function closeReport() {
+      document.getElementById('reportModal').classList.remove('active');
+    }
+
+    async function loadHistory() {
+      const list = document.getElementById('historyList');
+      list.innerHTML = '<div class="p-10 text-center text-slate-500 text-sm">جاري التحميل...</div>';
+      try {
+        const res = await fetch('/api/history?limit=60');
+        const data = await res.json();
+        const items = data.history || [];
+        if (!items.length) {
+          list.innerHTML = '<div class="p-14 text-center text-slate-500 text-sm">لا يوجد سجل فحوصات بعد</div>';
+          return;
+        }
+        let rows = items.map(i => {
+          const sc = i.risk_score || 0;
+          const c = scoreColor(sc);
+          const time = i.timestamp ? new Date(i.timestamp).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+          const rid = i.report_id || i.id || '';
+          return '<tr class="history-row border-b border-slate-800/60 transition">' +
+            '<td class="py-3.5 px-5 font-mono text-xs text-slate-300" dir="ltr">' + (i.domain || '—') + '</td>' +
+            '<td class="py-3.5 px-4"><span class="font-black ' + c.text + '">' + sc + '</span></td>' +
+            '<td class="py-3.5 px-4"><span class="text-xs font-bold ' + c.text + '">' + (i.risk_label || i.risk_level || '—') + '</span></td>' +
+            '<td class="py-3.5 px-4 text-[11px] font-mono text-slate-500" dir="ltr">' + rid + '</td>' +
+            '<td class="py-3.5 px-5 text-xs text-slate-500">' + time + '</td></tr>';
+        }).join('');
+        list.innerHTML = '<div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-[11px] text-slate-500 uppercase tracking-wider border-b border-slate-800">' +
+          '<th class="text-right py-3.5 px-5 font-bold">النطاق</th><th class="text-right py-3.5 px-4 font-bold">الدرجة</th>' +
+          '<th class="text-right py-3.5 px-4 font-bold">الحالة</th><th class="text-right py-3.5 px-4 font-bold">رقم التقرير</th>' +
+          '<th class="text-right py-3.5 px-5 font-bold">الوقت</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+      } catch (e) {
+        list.innerHTML = '<div class="p-8 text-center text-red-400 text-sm">تعذر تحميل السجل</div>';
+      }
+    }
+
+    window.openScanner = async function() {
+      document.getElementById('scannerModal').classList.add('active');
+      try {
+        html5QrCode = new Html5Qrcode("reader");
+        await html5QrCode.start({ facingMode: "environment" }, { fps: 12, qrbox: { width: 220, height: 220 } },
+          function(txt) { document.getElementById('urlInput').value = txt; closeScanner(); runAnalysis(); });
+      } catch (e) { closeScanner(); }
+    };
+    window.closeScanner = function() {
+      if (html5QrCode) html5QrCode.stop().finally(function() { document.getElementById('scannerModal').classList.remove('active'); html5QrCode = null; });
+      else document.getElementById('scannerModal').classList.remove('active');
+    };
+
+    document.getElementById('urlInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') runAnalysis(); });
+    document.getElementById('reportModal').addEventListener('click', function(e) {
+      if (e.target === this) closeReport();
+    });
+    lucide.createIcons();
+  </script>
+</body>
+</html>

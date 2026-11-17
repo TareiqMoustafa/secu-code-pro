@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Documentation | SecuCode Pro</title>
+  <meta name="theme-color" content="#030712" />
+  <link rel="icon" href="/static/img/logo-mark.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: 'Cairo', system-ui, sans-serif; background: #030712; color: #e2e8f0; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    .page-bg {
+      background: radial-gradient(ellipse 90% 50% at 50% -15%, rgba(34,211,238,0.12), transparent 55%), #030712;
+    }
+    .panel {
+      background: rgba(15,23,42,0.78); border: 1px solid rgba(148,163,184,0.12);
+      box-shadow: 0 24px 48px -20px rgba(0,0,0,0.5); border-radius: 1.5rem;
+    }
+    .field {
+      width: 100%; background: rgba(2,6,23,0.9); border: 1px solid rgba(51,65,85,0.95);
+      border-radius: 1rem; padding: 0.85rem 1rem; font-size: 0.9rem; font-weight: 600; color: #f1f5f9;
+    }
+    .field:focus { outline: none; border-color: rgba(34,211,238,0.55); box-shadow: 0 0 0 3px rgba(34,211,238,0.12); }
+    .btn-primary {
+      background: linear-gradient(135deg, #0891b2, #2563eb 55%, #4f46e5); color: #fff; font-weight: 900;
+      border-radius: 1rem; padding: 0.85rem 1.5rem; width: 100%;
+      box-shadow: 0 10px 28px rgba(37,99,235,0.3);
+    }
+    .btn-primary:disabled { opacity: 0.65; }
+
+    .nav-bar {
+      background: rgba(3, 7, 18, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    }
+    .logo-glow {
+      box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.25), 0 0 18px rgba(34, 211, 238, 0.18);
+    }
+    .menu-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 0.85rem; border-radius: 0.85rem;
+      font-size: 0.75rem; font-weight: 800; color: #e2e8f0;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(71, 85, 105, 0.8);
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .menu-btn:hover, .menu-btn.open {
+      border-color: rgba(34, 211, 238, 0.45);
+      color: #22d3ee;
+      background: rgba(34, 211, 238, 0.08);
+    }
+    .menu-drop {
+      display: none;
+      position: absolute;
+      left: 0; top: calc(100% + 8px);
+      min-width: 200px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(51, 65, 85, 0.95);
+      border-radius: 1rem;
+      padding: 0.4rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      z-index: 60;
+    }
+    .menu-drop.open { display: block; }
+    .menu-drop a {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.7rem 0.85rem; border-radius: 0.75rem;
+      font-size: 0.8rem; font-weight: 700; color: #cbd5e1;
+      text-decoration: none; transition: background 0.15s, color 0.15s;
+    }
+    .menu-drop a:hover { background: rgba(34, 211, 238, 0.1); color: #22d3ee; }
+    .menu-drop a span.icon { opacity: 0.7; font-size: 0.95rem; width: 1.25rem; text-align: center; }
+
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+  </style>
+</head>
+<body class="page-bg">
+  <nav class="sticky top-0 z-50 nav-bar">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <a href="/" class="flex items-center gap-3 min-w-0">
+        <img src="/static/img/logo-mark.png" alt="SecuCode Pro" width="40" height="40"
+          class="w-10 h-10 rounded-xl logo-glow flex-shrink-0" />
+        <div class="min-w-0">
+          <div class="font-black text-[15px] leading-none">SecuCode <span class="text-cyan-400">Pro</span></div>
+          <div class="text-[9px] text-slate-500 font-bold tracking-[0.16em] uppercase mt-1 hidden sm:block">Elite Cyber Security</div>
+        </div>
+      </a>
+      <div class="relative" id="navMenuWrap">
+        <button type="button" class="menu-btn" id="navMenuBtn" aria-expanded="false" aria-haspopup="true">
+          <i data-lucide="menu" class="w-4 h-4"></i>
+          <span>القائمة</span>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-70"></i>
+        </button>
+        <div class="menu-drop" id="navMenuDrop" role="menu">
+          <a href="/" role="menuitem"><span class="icon">⌂</span> الصفحة الرئيسية</a>
+          <a href="/bulk" role="menuitem"><span class="icon">▦</span> فحص جماعي</a>
+          <a href="/threats" role="menuitem"><span class="icon">◉</span> إحصائيات التهديدات</a>
+          <a href="/report-url" role="menuitem"><span class="icon">⚑</span> إبلاغ عن رابط</a>
+          <a href="/docs" role="menuitem"><span class="icon">{ }</span> توثيق API</a>
+          <a href="/admin" role="menuitem"><span class="icon">⚙</span> لوحة الإدارة</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-10 space-y-8">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-black">واجهة برمجة مجانية</h1>
+      <p class="text-slate-400 text-sm mt-2 leading-relaxed">استخدم محرك الاستخبارات في أدواتك مباشرة — بدون اشتراك.</p>
+    </div>
+    <section class="panel p-5 sm:p-6 space-y-3">
+      <h2 class="font-black text-cyan-400 text-sm tracking-wide">POST /api/analyze</h2>
+      <p class="text-sm text-slate-400">فحص رابط واحد</p>
+      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 overflow-x-auto" dir="ltr">curl -X POST https://secu-code-pro.vercel.app/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"link":"https://example.com"}'</pre>
+    </section>
+    <section class="panel p-5 sm:p-6 space-y-3">
+      <h2 class="font-black text-cyan-400 text-sm tracking-wide">POST /api/bulk</h2>
+      <p class="text-sm text-slate-400">فحص حتى 8 روابط</p>
+      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 overflow-x-auto" dir="ltr">curl -X POST https://secu-code-pro.vercel.app/api/bulk \
+  -H "Content-Type: application/json" \
+  -d '{"urls":["https://a.com","https://b.com"]}'</pre>
+    </section>
+    <section class="panel p-5 sm:p-6 space-y-3">
+      <h2 class="font-black text-cyan-400 text-sm tracking-wide">GET /api/badge?domain=</h2>
+      <p class="text-sm text-slate-400">شارة ثقة SVG</p>
+      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 overflow-x-auto" dir="ltr">&lt;img src="https://secu-code-pro.vercel.app/api/badge?domain=yoursite.com" /&gt;</pre>
+      <img src="/api/badge?domain=google.com" alt="badge" class="rounded-lg max-w-full" />
+    </section>
+    <section class="panel p-5 sm:p-6 space-y-3">
+      <h2 class="font-black text-cyan-400 text-sm tracking-wide">GET /r/{report_id}</h2>
+      <p class="text-sm text-slate-400">تقرير عام قابل للمشاركة</p>
+      <pre class="bg-slate-950 rounded-xl p-4 text-xs text-emerald-400 overflow-x-auto" dir="ltr">https://secu-code-pro.vercel.app/r/SCR-XXXXXXXXXXXX</pre>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-800/80 mt-16">
+    <div class="max-w-6xl mx-auto px-4 py-8 text-center">
+      <div class="text-sm font-bold text-slate-300">SecuCode Pro © 2026</div>
+      <div class="text-xs text-slate-500 mt-1">طارق مصطفى · مازن عمرو</div>
+    </div>
+  </footer>
+  <script>
+
+    (function(){
+      const btn = document.getElementById('navMenuBtn');
+      const drop = document.getElementById('navMenuDrop');
+      if (!btn || !drop) return;
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        const open = drop.classList.toggle('open');
+        btn.classList.toggle('open', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      document.addEventListener('click', function(){
+        drop.classList.remove('open');
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+      drop.addEventListener('click', function(e){ e.stopPropagation(); });
+    })();
+
+    if (window.lucide) lucide.createIcons();
+  </script>
+</body>
+</html>
