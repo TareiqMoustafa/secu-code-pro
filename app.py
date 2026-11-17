@@ -1,7 +1,7 @@
 """
 SecuCode Pro v2.5 - Professional Threat Intelligence Platform
 Multi-Source URL Analysis Engine + History + Admin
-Developers: Tarek Mostafa · Mazen Amr
+Developers: Tarek Mostafa · Mazen Amro
 """
 
 import os
@@ -142,25 +142,31 @@ def analyze():
 
 @app.route("/api/health")
 def health():
+    db = {}
+    try:
+        db = storage.db_status()
+    except Exception as e:
+        db = {"backend": "memory", "error": str(e)[:120]}
     stats = {}
     try:
         stats = storage.get_stats()
-    except Exception as e:
-        stats = {"error": str(e)[:80]}
+    except Exception:
+        stats = {}
     return jsonify({
         "status": "ok",
         "service": "SecuCode Pro",
         "version": "2.5.0",
-        "database": stats.get("backend", "unknown"),
-        "total_scans": stats.get("total_scans"),
+        "database": db.get("backend", "memory"),
+        "connected": db.get("connected", False),
+        "has_database_url": db.get("has_database_url"),
+        "scans_table": db.get("scans_table"),
+        "db_error": db.get("error"),
+        "total_scans": stats.get("total_scans", db.get("total_scans")),
         "threats_detected": stats.get("threats_detected"),
         "safe_count": stats.get("safe_count"),
     })
 
 
-# ─────────────────────────────────────────────
-# History & Stats (public read)
-# ─────────────────────────────────────────────
 @app.route("/api/history")
 def history():
     limit = min(int(request.args.get("limit", 40)), 100)
