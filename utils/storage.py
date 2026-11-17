@@ -17,8 +17,14 @@ from urllib.parse import quote_plus
 _lock = threading.Lock()
 _MAX_HISTORY = 500
 
-_DATABASE_URL = os.getenv("DATABASE_URL", "").strip()
-_DB_PASSWORD = os.getenv("SUPABASE_DB_PASSWORD", "").strip()
+def _clean_env(v: str) -> str:
+    v = (v or "").strip()
+    if len(v) >= 2 and ((v[0] == v[-1] == '"') or (v[0] == v[-1] == "'")):
+        v = v[1:-1].strip()
+    return v
+
+_DATABASE_URL = _clean_env(os.getenv("DATABASE_URL", ""))
+_DB_PASSWORD = _clean_env(os.getenv("SUPABASE_DB_PASSWORD", ""))
 
 if not _DATABASE_URL and _DB_PASSWORD:
     user = os.getenv("SUPABASE_DB_USER", "postgres.afhvwbrwxbtfkooxrbct")
@@ -305,6 +311,44 @@ def get_report(report_id: str) -> Optional[Dict]:
     return None
 
 
+
+def db_status() -> Dict[str, Any]:
+    """Diagnostic for /api/health — never raises."""
+    info = {
+        "backend": "memory",
+        "has_database_url": bool(_DATABASE_URL),
+        "has_password_env": bool(_DB_PASSWORD),
+        "connected": False,
+        "error": None,
+    }
+    if not _DATABASE_URL:
+        info["error"] = "DATABASE_URL is empty — set it in Vercel Environment Variables"
+        return info
+    try:
+        import psycopg2
+        conn = psycopg2.connect(_DATABASE_URL, connect_timeout=8, sslmode="require")
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.fetchone()
+        try:
+            cur.execute("SELECT COUNT(*) FROM scans")
+            info["scans_table"] = True
+            info["total_scans"] = cur.fetchone()[0]
+        except Exception:
+            info["scans_table"] = False
+            info["error"] = "connected but table scans missing — run schema.sql in Supabase"
+        cur.close()
+        conn.close()
+        info["backend"] = "supabase"
+        info["connected"] = True
+        if info.get("scans_table") and not info.get("error"):
+            info["error"] = None
+        return info
+    except Exception as e:
+        info["error"] = str(e)[:200]
+        return info
+
+
 def get_stats() -> Dict[str, Any]:
     if _USE_PG:
         _ensure_schema()
@@ -318,6 +362,13 @@ def get_stats() -> Dict[str, Any]:
                 threats = cur.fetchone()[0]
                 cur.execute("SELECT COUNT(*) FROM scans WHERE risk_level = 'critical'")
                 critical = cur.fetchone()[0]
+                cur.execute("""
+                    SELECT COUNT(*) FROM scans
+                    WHERE COALESCE(risk_level, '') IN ('safe', 'low')
+                       OR (COALESCE(risk_level, '') NOT IN ('critical', 'suspicious', 'safe', 'low')
+                           AND COALESCE(risk_score, 0) < 45)
+                """)
+                safe = cur.fetchone()[0]
                 cur.execute("SELECT created_at FROM scans ORDER BY created_at DESC LIMIT 1")
                 row = cur.fetchone()
                 last = row[0].isoformat() if row and row[0] else None
@@ -326,6 +377,7 @@ def get_stats() -> Dict[str, Any]:
                 return {
                     "total_scans": total,
                     "threats_detected": threats,
+                    "safe_count": safe,
                     "critical_count": critical,
                     "last_scan": last,
                     "backend": "supabase",
@@ -342,9 +394,11 @@ def get_stats() -> Dict[str, Any]:
     total = len(items)
     threats = sum(1 for i in items if i.get("risk_level") in ("critical", "suspicious"))
     critical = sum(1 for i in items if i.get("risk_level") == "critical")
+    safe = sum(1 for i in items if i.get("risk_level") in ("safe", "low") or (not i.get("risk_level") and (i.get("risk_score") or 0) < 20))
     return {
         "total_scans": total,
         "threats_detected": threats,
+        "safe_count": safe,
         "critical_count": critical,
         "last_scan": items[0]["timestamp"] if items else None,
         "backend": "memory",
